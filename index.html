@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>360° 学生成长画像数字化系统 - 旗舰版</title>
+    <title>学生成长画像数字化系统 - 最终旗舰版</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -16,14 +16,14 @@
         .page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 顶部导航与状态 */
+        /* API 配置 */
         .top-nav { background: #fffbe6; padding: 15px 25px; border-radius: 15px; margin-bottom: 30px; border: 1px solid #ffe58f; display: flex; align-items: center; gap: 20px; }
         .top-nav input { flex-grow: 1; padding: 10px; border: 1px solid #d9d9d9; border-radius: 8px; outline: none; }
 
-        .section { margin: 30px 0; padding: 25px; border: 1px solid #f1f5f9; border-radius: 18px; background: #fff; position: relative; }
+        .section { margin: 30px 0; padding: 25px; border: 1px solid #f1f5f9; border-radius: 18px; background: #fff; }
         .section h3 { border-left: 5px solid var(--accent); padding-left: 15px; color: var(--primary); margin: 0 0 25px 0; background: #f8fafc; padding-block: 10px; font-size: 18px; }
 
-        /* 问卷项 */
+        /* 问卷项样式 */
         .question-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
         .q-wrap { background: #fcfcfc; border: 1px solid #f1f5f9; padding: 18px; border-radius: 12px; }
         .q-label { display: block; font-weight: 700; margin-bottom: 12px; font-size: 14px; color: #475569; }
@@ -32,13 +32,10 @@
         .opt-item:hover { border-color: var(--accent); background: #eff6ff; }
         .opt-item input { margin: 0; width: 16px; height: 16px; accent-color: var(--accent); }
 
-        /* 编辑模式高亮 */
-        .edit-mode-active { border: 2px solid var(--warning) !important; background: #fffdf5 !important; }
-
-        /* 画像档案卡渲染 */
-        .portrait-card { border: 1px solid #000; border-radius: 0; background: #fff; padding: 0; font-family: 'JetBrains Mono', 'Noto Sans SC'; margin-top: 20px; }
-        .p-header { background: #000; color: #fff; padding: 25px 35px; display: flex; justify-content: space-between; align-items: center; }
-        .p-body { padding: 40px; }
+        /* 档案卡预览样式 */
+        .portrait-card { border: 2px solid #000; border-radius: 0; background: #fff; font-family: 'JetBrains Mono', 'Noto Sans SC'; margin-top: 20px; }
+        .p-header { background: #000; color: #fff; padding: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .p-body { padding: 40px; font-size: 14px; }
         
         /* 按钮体系 */
         .btn-group { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; }
@@ -51,8 +48,9 @@
         .btn-gray { background: #e2e8f0; color: #475569; }
         button:hover { transform: translateY(-2px); filter: brightness(0.9); }
 
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 16px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #eee; font-size: 13px; }
+        th { background: #f8fafc; font-weight: bold; }
         .loading { display: none; text-align: center; padding: 60px; color: var(--accent); font-weight: bold; }
     </style>
 </head>
@@ -60,57 +58,48 @@
 <body>
 <div class="container">
     <div class="top-nav">
-        <i class="fas fa-microchip"></i>
-        <strong>数据接入:</strong>
-        <input type="password" id="api_key" placeholder="填入智谱 API Key 激活 AI 数据转换引擎">
+        <i class="fas fa-fingerprint"></i>
+        <strong>数据接入授权:</strong>
+        <input type="password" id="api_key" placeholder="填入 API Key 激活数字化转换引擎">
     </div>
 
     <div id="page1" class="page active">
         <div style="text-align:center; margin-bottom:40px;">
-            <h1 style="font-size:30px;"><i class="fas fa-database"></i> 学生成长画像数据站</h1>
-            <p style="color:#64748b;">精准记录 8 个层级、40 个维度的原始画像数据</p>
+            <h1 style="font-size:28px;"><i class="fas fa-shield-alt"></i> 学生成长数字化画像站</h1>
+            <p style="color:#64748b;">精准记录 8 个层级、45 个全维度原始数据指标</p>
         </div>
 
         <div class="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:30px;">
-            <button class="btn-info" onclick="showPage(5)" style="height:70px; font-size:18px;"><i class="fas fa-box-archive"></i> 画像存档文库</button>
-            <button class="btn-success" onclick="showPage(2)" style="height:70px; font-size:18px;"><i class="fas fa-user-plus"></i> 选择学生开启新测评</button>
+            <button class="btn-info" onclick="showPage(5)" style="height:70px; font-size:16px;"><i class="fas fa-folder-open"></i> 查阅画像档案文库</button>
+            <button class="btn-success" onclick="showPage(2)" style="height:70px; font-size:16px;"><i class="fas fa-user-plus"></i> 选择学生开始精准测评</button>
         </div>
 
-        <div class="section" id="entryZone">
-            <h3 id="entryTitle"><i class="fas fa-file-import"></i> 名单批量导入</h3>
-            <div id="importContainer">
-                <textarea id="batchInput" rows="5" placeholder="粘贴格式：姓名,性别,班级,时间... (支持Excel多行粘贴)"></textarea>
-            </div>
-            
-            <div id="editForm" style="display:none; grid-template-columns: repeat(4, 1fr); gap:15px; margin-bottom:15px;">
+        <div class="section">
+            <h3><i class="fas fa-file-import"></i> 名册管理</h3>
+            <textarea id="batchInput" rows="4" placeholder="粘贴格式：姓名,性别,班级,上课时间 (支持多行批量)"></textarea>
+            <div id="editForm" style="display:none; grid-template-columns: repeat(4, 1fr); gap:15px; margin-top:15px; background:#f0f9ff; padding:20px; border-radius:15px;">
                 <div><label>姓名</label><input type="text" id="editName"></div>
                 <div><label>性别</label><input type="text" id="editSex"></div>
                 <div><label>班级</label><input type="text" id="editClass"></div>
                 <div><label>上课时间</label><input type="text" id="editTime"></div>
             </div>
-
             <div class="btn-group">
-                <button class="btn-primary" id="mainEntryBtn" onclick="handleMainAction()">✨ 智能识别并入库</button>
-                <button class="btn-gray" id="cancelEditBtn" style="display:none;" onclick="cancelEdit()">取消修改</button>
-                <button class="btn-gray" onclick="exportBackup()">备份数据库</button>
-                <button class="btn-gray" onclick="document.getElementById('importFile').click()">导入备份</button>
+                <button class="btn-primary" id="mainEntryBtn" onclick="handleMainAction()">✨ 智能入库 / 确认修改</button>
+                <button class="btn-gray" id="cancelEditBtn" style="display:none;" onclick="cancelEdit()">取消</button>
+                <button class="btn-gray" onclick="exportBackup()">备份库</button>
+                <button class="btn-gray" onclick="document.getElementById('importFile').click()">导入库</button>
                 <input type="file" id="importFile" style="display:none" onchange="importBackup(this)">
             </div>
-        </div>
-
-        <div class="section">
-            <h3><i class="fas fa-list"></i> 名册管理</h3>
-            <table id="stuTable">
-                <thead><tr><th>姓名</th><th>班级</th><th>识别学段</th><th>画像状态</th><th style="width:250px;">管理操作</th></tr></thead>
+            <table id="stuTable" style="margin-top:20px;">
+                <thead><tr><th>姓名</th><th>班级</th><th>识别层级</th><th>画像状态</th><th>管理操作</th></tr></thead>
                 <tbody></tbody>
             </table>
-            <div style="text-align:right; margin-top:20px;"><button class="btn-danger" onclick="clearAllData()">⚠️ 清空数据库</button></div>
         </div>
     </div>
 
     <div id="page2" class="page">
         <div class="header" style="text-align:center;"><h1>选择待测评对象</h1></div>
-        <div id="studentGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:20px; margin-top:20px;"></div>
+        <div id="studentGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:20px; margin-top:20px;"></div>
         <div class="btn-group"><button class="btn-gray" onclick="showPage(1)">返回主页</button></div>
     </div>
 
@@ -118,26 +107,26 @@
         <div id="dynamicSurvey"></div>
         <div class="btn-group">
             <button class="btn-gray" onclick="showPage(2)">← 重选学生</button>
-            <button class="btn-primary" onclick="generatePortrait()">✨ 提取原始数据生成画像卡</button>
+            <button class="btn-primary" onclick="generatePortrait()">✨ 结构化数据导出画像</button>
         </div>
     </div>
 
     <div id="page4" class="page">
-        <div id="loading" class="loading"><i class="fas fa-sync fa-spin fa-3x"></i><br><br>正在对 40 维度全量数据进行结构化建模...</div>
+        <div id="loading" class="loading"><i class="fas fa-microchip fa-spin fa-3x"></i><br><br>正在对全量 45 维度数据进行深度语义转换...</div>
         <div id="portraitOutput"></div>
         <div class="btn-group">
-            <button class="btn-info" onclick="copyPortrait()">复制 Markdown 源码</button>
-            <button class="btn-success" onclick="saveToArchive()">正式存档至文库</button>
-            <button class="btn-gray" onclick="showPage(2)">测评下一位</button>
+            <button class="btn-info" onclick="copyPortrait()">复制自解释文档</button>
+            <button class="btn-success" onclick="saveToArchive()">存入档案库</button>
+            <button class="btn-gray" onclick="showPage(2)">下一位</button>
         </div>
     </div>
 
     <div id="page5" class="page">
         <div class="header" style="display:flex; justify-content:space-between; align-items:center;">
-            <h1><i class="fas fa-archive"></i> 已存档画像文库</h1>
+            <h1><i class="fas fa-archive"></i> 画像文库</h1>
             <div style="display:flex; gap:10px;">
-                <button class="btn-info" onclick="downloadAllMerged()">全员导出 (.md)</button>
-                <button class="btn-gray" onclick="showPage(1)">返回主页</button>
+                <button class="btn-info" onclick="downloadAllMerged()">汇总导出(.md)</button>
+                <button class="btn-gray" onclick="showPage(1)">返回</button>
             </div>
         </div>
         <div id="libraryContent" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px; margin-top:25px;"></div>
@@ -145,110 +134,102 @@
 </div>
 
 <script>
-// --- 终极全维度、全层级测评模版库 (40+ 维度) ---
+// --- 终极 45 维度、8层级、全课程库测评模版 ---
 const SURVEY_CORE = {
     preschool: [
-        { group: "1. 个人生活背景", items: [
-            { id: "p1", label: "家中排行", type: "radio", opts: ["独生","老大","老二","老三"] },
-            { id: "p2", label: "主要教养人", type: "radio", opts: ["父母","祖辈","保姆","混合"] },
-            { id: "p3", label: "乐高接触史", type: "radio", opts: ["经常玩","偶尔","从不"] },
-            { id: "p4", label: "如厕自理能力", type: "radio", opts: ["完全自理","需脱提裤辅助","需提醒"] },
-            { id: "p5", label: "每日屏幕时间", type: "radio", opts: ["无","<30min","30-60min",">1h"] },
-            { id: "p6", label: "过敏/特殊注意", type: "text", placeholder: "无或具体内容" }
+        { group: "1. 家庭与成长背景 (L1-L2 基础)", items: [
+            { id: "p1", label: "家中排行", type: "radio", opts: ["独生子女","老大(有弟妹)","老二(有兄姐)","老三及以后"] },
+            { id: "p2", label: "主要教养人", type: "radio", opts: ["父母共同","祖辈主带","保姆/托管","混合模式"] },
+            { id: "p3", label: "乐高接触史", type: "radio", opts: ["经常玩(2年以上)","偶尔玩(半年)","从不/初次接触"] },
+            { id: "p4", label: "入园/托状态", type: "text", placeholder: "如：已入托1年，适应良好" },
+            { id: "p5", label: "如厕自理", type: "radio", opts: ["完全自理","需脱提裤辅助","需老师定时提醒"] },
+            { id: "p6", label: "屏幕时间/天", type: "radio", opts: ["无接触","<30min","30-60min",">1h"] }
         ]},
-        { group: "2. 情感气质与社交 (L1-L2)", items: [
-            { id: "p7", label: "气质类型", type: "radio", opts: ["活泼型","谨慎型","平和型","敏感型"] },
-            { id: "p8", label: "分离焦虑", type: "radio", opts: ["无","轻度(1周)","中度(4周)","明显"] },
-            { id: "p9", label: "有效安抚方式", type: "radio", opts: ["拥抱","注意力转移","具体表扬","陪伴"] },
-            { id: "p10", label: "社交互动(同伴)", type: "radio", opts: ["主动交友","被动跟随","平行玩耍","独自游戏"] },
-            { id: "p11", label: "冲突处理", type: "radio", opts: ["直接表达","退让回避","寻求求助","情绪爆发"] },
-            { id: "p12", label: "规则意识", type: "radio", opts: ["完全遵守","需提醒","有难度"] }
+        { group: "2. 性格气质与安抚方式", items: [
+            { id: "p7", label: "气质类型", type: "radio", opts: ["活泼型(好动快语)","谨慎型(慢热观察)","平和型(温和顺从)","敏感型(情感细腻)"] },
+            { id: "p8", label: "分离焦虑", type: "radio", opts: ["无(入课顺畅)","轻度(短暂哭闹)","中度(需家长陪)","明显(较长适应期)"] },
+            { id: "p9", label: "有效安抚方式", type: "radio", opts: ["肢体拥抱","注意力转移","具体细节夸奖","静静陪伴"] },
+            { id: "p10", label: "社交模式(同伴)", type: "radio", opts: ["主动交友","被动跟随","平行玩耍","独自游戏"] },
+            { id: "p11", label: "冲突处理习惯", type: "radio", opts: ["直接表达","退让回避","寻找求助","爆发哭闹"] }
         ]},
-        { group: "3. 感知动作发展 (L3-L4)", items: [
-            { id: "p13", label: "学习偏好", type: "radio", opts: ["视觉型","听觉型","动觉型","多感官混合"] },
-            { id: "p14", label: "精细动作(工具固定)", type: "radio", opts: ["灵活精准","需手部引导","力道不足"] },
-            { id: "p15", label: "手眼协调度", type: "radio", opts: ["精准对齐","一般","需额外练习"] },
-            { id: "p16", label: "大肌肉协调性", type: "radio", opts: ["跑跳协调","坐不住","活跃型"] },
-            { id: "p17", label: "搭建稳定性意识", type: "radio", opts: ["主动加固底部","随性堆砌","理解垂直支撑"] }
+        { group: "3. 动作、感官与稳定性 (L3-L4 进阶)", items: [
+            { id: "p12", label: "学习偏好", type: "radio", opts: ["视觉(爱看图)","听觉(爱听讲)","动觉(爱直接摸)","多感官混合"] },
+            { id: "p13", label: "大肌肉协调性", type: "radio", opts: ["跑跳精准协调","偶尔坐不住","容易疲惫","多动活跃"] },
+            { id: "p14", label: "精细动作(工具)", type: "radio", opts: ["螺丝精准固定","需手部引导力道","力量发育中"] },
+            { id: "p15", label: "手眼协调", type: "radio", opts: ["对齐极精准","一般","需练习调整"] },
+            { id: "p16", label: "结构稳固意识", type: "radio", opts: ["关注底部加固","盲目向上堆砌","理解垂直支撑"] },
+            { id: "p17", label: "小颗粒操作", type: "radio", opts: ["熟练抠取","尝试中","有较大难度"] }
         ]},
-        { group: "4. 认知与课堂表达", items: [
-            { id: "p18", label: "指令理解深度", type: "radio", opts: ["完全理解","需简化","需配合动作"] },
-            { id: "p19", label: "表达能力", type: "radio", opts: ["清晰因果","简单词汇","词汇有限"] },
-            { id: "p20", label: "想象力/倾向", type: "radio", opts: ["天马行空","模仿参考","两者结合"] },
-            { id: "p21", label: "专注时长(分)", type: "radio", opts: ["<10","10-15","15-20",">20"] }
+        { group: "4. 课堂表现与逻辑启蒙", items: [
+            { id: "p18", label: "指令理解深度", type: "radio", opts: ["完全理解并执行","需简化分步","需动作示范"] },
+            { id: "p19", label: "因果表达能力", type: "radio", opts: ["清晰描述因果","只能说名称","表达逻辑跳跃"] },
+            { id: "p20", label: "想象力倾向", type: "radio", opts: ["天马行空无限制","务实模仿参考","两者平衡结合"] },
+            { id: "p21", label: "规则/等待意识", type: "radio", opts: ["能轮流等待","需提醒规则","等待极其困难"] },
+            { id: "p22", label: "收拾整理习惯", type: "radio", opts: ["自觉分类归位","需老师督促","无序丢弃"] }
         ]}
     ],
     primary_low: [
-        { group: "1. 学习素质与心态", items: [
-            { id: "l1", label: "课堂参与度", type: "radio", opts: ["积极举手","被点名答","需鼓励"] },
-            { id: "l2", label: "胜负心理反应", type: "radio", opts: ["胜不骄败不馁","赢了开心输了急","情绪波动大"] },
-            { id: "l3", label: "提问习惯", type: "radio", opts: ["主动追问为什么","私下问","不问但困惑"] },
-            { id: "l4", label: "合作与竞争", type: "radio", opts: ["善于分工","争抢操作权","倾向独立"] }
+        { group: "1. 学习素质与学校背景", items: [
+            { id: "l1", label: "所在年级/职务", type: "text", placeholder: "如：一年级 / 小组长" },
+            { id: "l2", label: "课堂参与度", type: "radio", opts: ["积极举手","被点名才说","沉默观察"] },
+            { id: "l3", label: "提问习惯", type: "radio", opts: ["主动追问原理","私下询问","不问但困惑"] },
+            { id: "l4", label: "胜负心理反应", type: "radio", opts: ["胜不骄败不馁","赢了开心输了急","极其在意输赢"] }
         ]},
-        { group: "2. 逻辑与机械能力 (L5-SPIKE)", items: [
-            { id: "l5", label: "逻辑思维能力", type: "radio", opts: ["1星","2星","3星","4星","5星"] },
-            { id: "l6", label: "空间想象能力", type: "radio", opts: ["1星","2星","3星","4星","5星"] },
-            { id: "l7", label: "动手搭建能力", type: "radio", opts: ["独立完成","参考范例","需手把手"] },
-            { id: "l8", label: "机械原理理解", type: "radio", opts: ["能说清","会用说不清","纯机械记忆"] },
-            { id: "l9", label: "排障调试耐心", type: "radio", opts: ["有耐心重来","一般","易急躁放弃"] }
+        { group: "2. 核心编程与机械 (L5-SPIKE)", items: [
+            { id: "l5", label: "逻辑思维等级", type: "radio", opts: ["1星","2星","3星","4星","5星"] },
+            { id: "l6", label: "空间想象等级", type: "radio", opts: ["1星","2星","3星","4星","5星"] },
+            { id: "l7", label: "编程理解(循环)", type: "radio", opts: ["逻辑清晰应用","模糊模仿","初次接触"] },
+            { id: "l8", label: "排障调试耐心", type: "radio", opts: ["有耐心反复试","一般","急躁想放弃"] },
+            { id: "l9", label: "故障排查思路", type: "radio", opts: ["主动逻辑分析","盲目乱拆乱改","直接举手求助"] }
         ]},
-        { group: "3. 学科基础衔接", items: [
-            { id: "l10", label: "数学逻辑基础", type: "radio", opts: ["扎实超越年龄","一般","需加强"] },
-            { id: "l11", label: "识字与阅读量", type: "radio", opts: ["自主阅读","需辅助","较弱"] },
-            { id: "l12", label: "拼音掌握程度", type: "radio", opts: ["熟练应用","一般","不熟悉"] },
-            { id: "l13", label: "书写/打字速度", type: "radio", opts: ["快速工整","较慢","需练习"] }
+        { group: "3. 学科基础与生活习惯", items: [
+            { id: "l10", label: "数学逻辑基础", type: "radio", opts: ["卓越/超前","优秀","一般","需加强"] },
+            { id: "l11", label: "识字阅读能力", type: "radio", opts: ["自主阅读文档","需拼音辅助","需老师讲解"] },
+            { id: "l12", label: "书写/键盘速度", type: "radio", opts: ["快且精准","慢但整齐","需大量练习"] },
+            { id: "l13", label: "器材整理习惯", type: "radio", opts: ["分类归位有序","提醒后能收好","杂乱无序"] }
         ]},
-        { group: "4. 家庭教育背景", items: [
-            { id: "l14", label: "作业辅导模式", type: "radio", opts: ["自主完成","家长陪同","家长主导"] },
-            { id: "l15", label: "家长焦虑度评分", type: "radio", opts: ["佛系","适度关注","较焦虑"] },
-            { id: "l16", label: "期望成果", type: "radio", opts: ["兴趣养成","能力进步","竞赛拿奖"] }
+        { group: "4. 家庭支持系统", items: [
+            { id: "l14", label: "作业辅导模式", type: "radio", opts: ["自主独立完成","家长陪同督促","家长主导纠错"] },
+            { id: "l15", label: "家长焦虑度评分", type: "radio", opts: ["佛系/无压力","适度关注","比较焦虑"] },
+            { id: "l16", label: "兴趣班总数", type: "radio", opts: ["0-1个","2-3个","4个以上"] }
         ]}
     ],
     primary_high: [
-        { group: "1. 学习成熟度 (Kitten-AI)", items: [
-            { id: "h1", label: "自主规划能力", type: "radio", opts: ["强(规划-执行-复盘)","中","弱"] },
-            { id: "h2", label: "目标意识", type: "radio", opts: ["清晰知道要什么","模糊","被动参与"] },
-            { id: "h3", label: "困难处理风格", type: "radio", opts: ["查资料解决","问老师","搁置放弃"] },
-            { id: "h4", label: "元认知能力", type: "radio", opts: ["能精准自评","大概知道","完全不清楚"] }
+        { group: "1. 学习成熟度 (Kitten-AICODE)", items: [
+            { id: "h1", label: "自主规划力", type: "radio", opts: ["强(规划-执行-复盘)","中(需部分督促)","弱"] },
+            { id: "h2", label: "目标意识", type: "radio", opts: ["清晰明确要什么","模糊跟随","无/被动参与"] },
+            { id: "h3", label: "元认知能力", type: "radio", opts: ["能精准客观自评","大概模糊","完全不清楚"] },
+            { id: "h4", label: "思维倾向", type: "radio", opts: ["分析型(重逻辑)","创造型(重方案)","实践型(重动手)"] }
         ]},
-        { group: "2. 编程/AI技术评估 (AICODE)", items: [
-            { id: "h5", label: "键盘指法习惯", type: "radio", opts: ["熟练盲打","准确但慢","单指寻键"] },
-            { id: "h6", label: "代码缩进规范", type: "radio", opts: ["极致规范","勉强可读","面条式代码"] },
-            { id: "h7", label: "AI工具协作深度", type: "radio", opts: ["熟练驾驭","机械索取答案","抗拒排斥"] },
-            { id: "h8", label: "Prompt编写质量", type: "radio", opts: ["清晰精准","基本可用","需大幅指导"] },
-            { id: "h9", label: "AI伦理意识", type: "radio", opts: ["有思考","初步接触","无概念"] }
+        { group: "2. 专业技术与 AI 素养", items: [
+            { id: "h5", label: "打字指法习惯", type: "radio", opts: ["标准盲打自如","准确但需看键盘","单指寻键模式"] },
+            { id: "h6", label: "代码缩进规范", type: "radio", opts: ["极致规范主动注释","勉强可读","混乱无排版"] },
+            { id: "h7", label: "AI 协作深度", type: "radio", opts: ["熟练驾驭协同","简单索取答案","抗拒/不适应"] },
+            { id: "h8", label: "Prompt 编写逻辑", type: "radio", opts: ["精准有效层级化","简短大而化之","需老师大幅指导"] },
+            { id: "h9", label: "报错日志习惯", type: "radio", opts: ["看红字自查","瞎猜乱改","放弃求助"] }
         ]},
-        { group: "3. 竞赛素质与项目力", items: [
-            { id: "h10", label: "抗压能力", type: "radio", opts: ["享受竞赛","过急关注输赢","易紧张"] },
-            { id: "h11", label: "挫折恢复速度", type: "radio", opts: ["快速恢复","需一定时间","易气馁"] },
-            { id: "h12", label: "MVP迭代意识", type: "radio", opts: ["强","一般","求一次通过"] },
-            { id: "h13", label: "项目文档习惯", type: "radio", opts: ["主动编写","要求才写","不写"] }
+        { group: "3. 竞赛素质与工程观", items: [
+            { id: "h10", label: "抗压能力", type: "radio", opts: ["享受竞赛挑战","过急在意名次","易紧张发挥失常"] },
+            { id: "h11", label: "挫折恢复力", type: "radio", opts: ["快速重整旗鼓","需较长时间复原","易气馁放弃"] },
+            { id: "h12", label: "MVP 迭代意识", type: "radio", opts: ["强(先跑通再优化)","一般","只求一次通过"] },
+            { id: "h13", label: "团队角色定位", type: "radio", opts: ["主导者(Leader)","核心执行者","创意提供者","边缘配合者"] }
         ]},
-        { group: "4. 学科交叉与志向", items: [
-            { id: "h14", label: "数学/几何逻辑", type: "radio", opts: ["超前/卓越","优秀","良好","一般"] },
-            { id: "h15", label: "英语文档阅读", type: "radio", opts: ["自如阅读","基础词汇","较困难"] },
-            { id: "h16", label: "科技行业认知", type: "radio", opts: ["有了解","初步接触","无概念"] },
-            { id: "h17", label: "未来职业想法", type: "text", placeholder: "如：游戏开发/无" }
+        { group: "4. 学科交叉与未来展望", items: [
+            { id: "h14", label: "数学/几何逻辑", type: "radio", opts: ["卓越/超前","优秀","良好","一般"] },
+            { id: "h15", label: "英语阅读水平", type: "radio", opts: ["能读英文文档","具备基础词汇","依赖翻译工具"] },
+            { id: "h16", label: "职业方向倾向", type: "text", placeholder: "如：对游戏开发/机器人算法有志向" }
         ]}
     ]
 };
 
-// --- 数据引擎 ---
-let studentDB = JSON.parse(localStorage.getItem('stu_full_final_v14')) || [];
+// --- 数据处理逻辑 ---
+let studentDB = JSON.parse(localStorage.getItem('stu_full_final_v15')) || [];
 let activeStu = null;
-let editingIndex = -1; // 正在编辑的学生索引
+let editingIndex = -1;
 let currentMD = "";
 
-// 处理录入或编辑
-function handleMainAction() {
-    if(editingIndex === -1) {
-        importStudents();
-    } else {
-        saveEditedStudent();
-    }
-}
+function handleMainAction() { editingIndex === -1 ? importStudents() : saveEditedStudent(); }
 
-// 批量导入
 function importStudents() {
     const raw = document.getElementById('batchInput').value.trim();
     if(!raw) return;
@@ -266,86 +247,59 @@ function importStudents() {
     saveDb(); renderTable(); document.getElementById('batchInput').value = "";
 }
 
-// 启动编辑模式
 function editStu(i) {
     editingIndex = i;
     const s = studentDB[i];
-    document.getElementById('entryTitle').innerHTML = `<i class="fas fa-edit"></i> 正在编辑：<span style="color:var(--warning)">${s.name}</span>`;
-    document.getElementById('importContainer').style.display = 'none';
+    document.getElementById('entryTitle').innerHTML = `正在编辑档案：<span style="color:var(--warning)">${s.name}</span>`;
+    document.getElementById('batchInput').style.display = 'none';
     document.getElementById('editForm').style.display = 'grid';
     document.getElementById('cancelEditBtn').style.display = 'block';
-    document.getElementById('mainEntryBtn').innerText = "确认修改并同步档案";
-    document.getElementById('mainEntryBtn').className = "btn-warning";
-
+    document.getElementById('mainEntryBtn').innerText = "确认同步档案修改";
     document.getElementById('editName').value = s.name;
     document.getElementById('editSex').value = s.sex;
     document.getElementById('editClass').value = s.class;
     document.getElementById('editTime').value = s.time;
-    
-    document.getElementById('entryZone').classList.add('edit-mode-active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 保存修改
 function saveEditedStudent() {
     const s = studentDB[editingIndex];
     s.name = document.getElementById('editName').value;
     s.sex = document.getElementById('editSex').value;
     s.class = document.getElementById('editClass').value;
     s.time = document.getElementById('editTime').value;
-    
-    // 重新判断学段
-    if(/意识|管道|发现|螺丝刀|发明|动力/.test(s.class)) s.level = "preschool";
-    else if(/AICODE|AI03|代码|英雄/.test(s.class)) s.level = "primary_high";
-    else s.level = "primary_low";
-
     saveDb(); cancelEdit(); renderTable();
-    alert("档案已成功修改！");
 }
 
 function cancelEdit() {
     editingIndex = -1;
-    document.getElementById('entryTitle').innerHTML = `<i class="fas fa-file-import"></i> 名单批量导入`;
-    document.getElementById('importContainer').style.display = 'block';
+    document.getElementById('entryTitle').innerHTML = `名单录入管理`;
+    document.getElementById('batchInput').style.display = 'block';
     document.getElementById('editForm').style.display = 'none';
     document.getElementById('cancelEditBtn').style.display = 'none';
     document.getElementById('mainEntryBtn').innerText = "✨ 智能识别并入库";
-    document.getElementById('mainEntryBtn').className = "btn-primary";
-    document.getElementById('entryZone').classList.remove('edit-mode-active');
 }
 
-// 重置学生测评数据
-function resetStu(i) {
-    if(confirm(`确定要重置 ${studentDB[i].name} 的所有测评数据和画像吗？基础档案信息将保留。`)) {
-        studentDB[i].progress = {};
-        studentDB[i].md = "";
-        saveDb(); renderTable();
-    }
-}
-
-function saveDb() { localStorage.setItem('stu_full_final_v14', JSON.stringify(studentDB)); }
+function saveDb() { localStorage.setItem('stu_full_final_v15', JSON.stringify(studentDB)); }
 
 function renderTable() {
     const tbody = document.querySelector('#stuTable tbody');
     tbody.innerHTML = studentDB.map((s, i) => `
         <tr><td><b>${s.name}</b></td><td>${s.class}</td><td><small>${s.level}</small></td>
-        <td>${s.md ? '<span style="color:var(--success)">● 已归档</span>' : '<span style="color:#999">○ 待测</span>'}</td>
+        <td>${s.md ? '<span style="color:var(--success)">● 已有画像</span>' : '<span style="color:#999">○ 待测评</span>'}</td>
         <td>
-            <button class="btn-warning" style="padding:4px 8px; font-size:12px; display:inline-flex;" onclick="editStu(${i})">编辑</button>
-            <button class="btn-gray" style="padding:4px 8px; font-size:12px; display:inline-flex;" onclick="resetStu(${i})">重置</button>
-            <button class="btn-danger" style="padding:4px 8px; font-size:12px; display:inline-flex;" onclick="delStu(${i})">删除</button>
+            <button class="btn-warning" style="padding:4px 8px; font-size:11px;" onclick="editStu(${i})">编辑</button>
+            <button class="btn-gray" style="padding:4px 8px; font-size:11px;" onclick="resetStu(${i})">重置</button>
+            <button class="btn-danger" style="padding:4px 8px; font-size:11px;" onclick="delStu(${i})">删除</button>
         </td></tr>`).join('');
 }
 
-// --- 测评逻辑 ---
+function resetStu(i) { if(confirm("确定重置测评数据？")) { studentDB[i].progress = {}; studentDB[i].md = ""; saveDb(); renderTable(); } }
+
 function openSurvey(name) {
     activeStu = studentDB.find(s => s.name === name);
     const container = document.getElementById('dynamicSurvey');
-    container.innerHTML = `<div class="section"><h3>档案基本信息: ${activeStu.name}</h3>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); font-size:13px; color:#666; margin-bottom:15px;">
-            <div>性别：${activeStu.sex}</div><div>班级：${activeStu.class}</div><div>时间：${activeStu.time}</div>
-        </div>
-        <textarea id="remark" placeholder="手动输入课堂细节观察..." oninput="autoSave()">${activeStu.progress.remark || ''}</textarea></div>`;
+    container.innerHTML = `<div class="section"><h3>档案基本信息锁定: ${activeStu.name}</h3><textarea id="remark" placeholder="手动输入课堂细节观察点..." oninput="autoSave()">${activeStu.progress.remark || ''}</textarea></div>`;
 
     SURVEY_CORE[activeStu.level].forEach(group => {
         let html = `<div class="section"><h3>${group.group}</h3><div class="question-grid">`;
@@ -373,16 +327,20 @@ function autoSave() {
 
 async function generatePortrait() {
     const key = document.getElementById('api_key').value.trim();
-    if(!key) return alert("请输入 API Key");
+    if(!key) return alert("API Key Required");
     showPage(4); document.getElementById('loading').style.display='block';
     
-    const prompt = `你是数据分析专家。请将以下 40 维度原始测评数据转化为一个高度结构化的“数字化画像数据卡”。
-    姓名：${activeStu.name}，班级：${activeStu.class}，数据：${JSON.stringify(activeStu.progress)}。
-    要求：
-    1. 严禁任何主观叙述，严禁建议。
-    2. 使用[属性名: 值]或表格展示。
-    3. 包含：[能力百分比雷达表]、[全维度行为标签云]、[原始观测数据摘要]。
-    4. 风格：冷峻、精确、纯数据流。`;
+    // 强化 Prompt 逻辑：要求 AI 变成“数据解说员”而非“文学家”
+    const prompt = `你是顶级教育数据分析专家。请将以下 45 个维度的原始测评数据转化为一份自解释的“数字化画像数据档案”。
+    学生：${activeStu.name}，班级：${activeStu.class}，数据：${JSON.stringify(activeStu.progress)}。
+    
+    输出严格规范：
+    1. **完整性优先**：必须涵盖所有采集到的维度，不要省略任何勾选项。
+    2. **自解释格式**：使用 [维度名称 | 状态值 | 行为定义] 的形式。
+    3. **可视化呈现**：能力指数必须使用 Markdown 表格，并用符号(如■□)模拟进度条。
+    4. **严禁主观叙述**：不要写“该生成绩优异”、“建议未来...”等废话。只准客观罗列数据事实。
+    5. **风格**：严谨、科技感、数据驱动。
+    6. 结尾输出加粗的“一句话画像数据摘要”。`;
 
     try {
         const res = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
@@ -390,21 +348,25 @@ async function generatePortrait() {
             body:JSON.stringify({model:"glm-4-flash", messages:[{role:"user",content:prompt}]})
         });
         const d = await res.json(); currentMD = d.choices[0].message.content;
-        document.getElementById('portraitOutput').innerHTML = `<div class="portrait-card"><div class="p-header"><h2>${activeStu.name}</h2><span>${activeStu.class} | ${activeStu.time}</span></div><div class="p-body">${marked.parse(currentMD)}</div></div>`;
-    } catch(e) { alert("Error"); } finally { document.getElementById('loading').style.display='none'; }
+        document.getElementById('portraitOutput').innerHTML = `
+            <div class="portrait-card">
+                <div class="p-header"><h2>${activeStu.name}</h2><span>PROFILE DATABASE v15.0</span></div>
+                <div class="p-body">${marked.parse(currentMD)}</div>
+            </div>`;
+    } catch(e) { alert("生成失败"); } finally { document.getElementById('loading').style.display='none'; }
 }
 
 function saveToArchive() { const idx = studentDB.findIndex(s => s.name === activeStu.name); studentDB[idx].md = currentMD; saveDb(); showPage(5); }
 function showPage(n) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(`page${n}`).classList.add('active'); if(n===2) renderGrid(); if(n===5) renderLibrary(); window.scrollTo(0,0); }
-function renderGrid() { document.getElementById('studentGrid').innerHTML = studentDB.map(s => `<div class="stu-card" onclick="openSurvey('${s.name}')"><b>${s.name}</b><br><small>${s.class}</small></div>`).join(''); }
-function renderLibrary() { document.getElementById('libraryContent').innerHTML = studentDB.filter(s => s.md).map(s => `<div class="stu-card" onclick="viewOld('${s.name}')"><b>${s.name}</b><br><small>${s.class}</small></div>`).join(''); }
+function renderGrid() { document.getElementById('studentGrid').innerHTML = studentDB.map(s => `<div class="opt-item" style="padding:20px; text-align:center;" onclick="openSurvey('${s.name}')"><b>${s.name}</b><br><small>${s.class}</small></div>`).join(''); }
+function renderLibrary() { document.getElementById('libraryContent').innerHTML = studentDB.filter(s => s.md).map(s => `<div class="stu-card" onclick="viewOld('${s.name}')"><h4>${s.name}</h4><small>${s.class}</small><br><button class="btn-primary" style="margin-top:10px; width:100%;">查阅画像</button></div>`).join(''); }
 function viewOld(name) { const s = studentDB.find(st => st.name === name); activeStu = s; currentMD = s.md; showPage(4); document.getElementById('portraitOutput').innerHTML = `<div class="portrait-card"><div class="p-header"><h2>${s.name}</h2><span>${s.class}</span></div><div class="p-body">${marked.parse(s.md)}</div></div>`; }
 function delStu(i) { if(confirm("Del?")) { studentDB.splice(i, 1); saveDb(); renderTable(); } }
 function clearAllData() { if(confirm("Clear All?")) { studentDB = []; saveDb(); renderTable(); } }
-function exportBackup() { const blob = new Blob([JSON.stringify(studentDB)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'archive_backup.json'; a.click(); }
-function importBackup(input) { const reader = new FileReader(); reader.onload = function(){ studentDB = JSON.parse(reader.result); saveDb(); renderTable(); }; reader.readAsText(input.files[0]); }
-function copyPortrait() { navigator.clipboard.writeText(currentMD).then(() => alert("Copied")); }
-function downloadAllMerged() { const blob = new Blob([studentDB.filter(s => s.md).map(s => s.md).join('\n\n---\n\n')], {type:'text/markdown'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'full_portraits.md'; a.click(); }
+function exportBackup() { const blob = new Blob([JSON.stringify(studentDB)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'database_backup.json'; a.click(); }
+function importBackup(input) { const reader = new FileReader(); reader.onload = function(){ try{ studentDB = JSON.parse(reader.result); saveDb(); renderTable(); }catch(e){alert("Error");}}; reader.readAsText(input.files[0]); }
+function copyPortrait() { navigator.clipboard.writeText(currentMD).then(() => alert("已复制 Markdown 文本")); }
+function downloadAllMerged() { const blob = new Blob([studentDB.filter(s => s.md).map(s => `# 姓名: ${s.name}\n${s.md}`).join('\n\n---\n\n')], {type:'text/markdown'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'merged_portraits.md'; a.click(); }
 
 window.onload = function() { renderTable(); document.getElementById('api_key').value = localStorage.getItem('zhipu_api_key') || ''; }
 </script>
