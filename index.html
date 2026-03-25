@@ -3,57 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>教育智库 - 深度学生画像系统</title>
+    <title>教育智库 - 深度学生画像系统 (多维多选版)</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f9; }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f9; --border: #e2e8f0; }
         body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg); padding: 20px; color: #333; line-height: 1.6; margin: 0; }
-        .container { max-width: 1050px; margin: 0 auto; background: #fff; padding: 35px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
+        .container { max-width: 1100px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
         
-        /* API 配置区 */
         .api-config { background: #fff5f5; padding: 15px 20px; border-radius: 10px; margin-bottom: 30px; border: 1px solid #fed7d7; display: flex; align-items: center; gap: 15px; font-size: 14px; color: #c53030; }
-        .api-config input { flex-grow: 1; padding: 10px; border: 1px solid #fc8181; border-radius: 6px; outline: none; transition: 0.3s; }
-        .api-config input:focus { box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.2); }
-
-        .header { text-align: center; margin-bottom: 35px; }
-        .header h1 { color: var(--primary); margin-bottom: 8px; font-size: 28px; letter-spacing: 1px; }
-        .header p { color: #7f8c8d; font-size: 15px; }
-
-        h3 { border-left: 5px solid var(--accent); padding-left: 15px; margin-top: 35px; color: var(--primary); background: #f8f9fa; padding-block: 12px; border-radius: 0 6px 6px 0; font-size: 18px; }
+        .api-config input { flex-grow: 1; padding: 10px; border: 1px solid #fc8181; border-radius: 6px; outline: none; }
         
-        /* 响应式网格布局，适配长文本下拉框 */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { color: var(--primary); margin-bottom: 8px; font-size: 30px; }
+        .header p { color: #7f8c8d; font-size: 15px; }
+        
+        h3 { border-left: 5px solid var(--accent); padding-left: 15px; margin-top: 40px; margin-bottom: 20px; color: var(--primary); background: #f8f9fa; padding-block: 12px; border-radius: 0 6px 6px 0; font-size: 18px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
         .full-width { grid-column: 1 / -1; }
         
-        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #4a5568; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 14px; background: #fff; transition: all 0.2s; }
+        label.main-label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 15px; color: #2d3748; }
+        input[type="text"], select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 14px; transition: 0.2s; }
         input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(52,152,219,0.15); }
-        input[readonly] { background-color: #f7fafc; color: #a0aec0; cursor: not-allowed; }
+        input[readonly] { background-color: #f7fafc; color: #a0aec0; }
         
-        /* 动态评估区高亮 */
-        #dynamic_questions { background: #f0f7ff; padding: 25px; border-radius: 10px; border: 1px solid #bee3f8; margin-top: 15px; }
-
+        /* 多选框面板专属样式 */
+        #dynamic_questions { display: flex; flex-direction: column; gap: 25px; margin-top: 15px; }
+        .question-block { background: #fdfefe; border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; transition: 0.2s; }
+        .question-block:hover { border-color: #bee3f8; box-shadow: 0 4px 12px rgba(52,152,219,0.05); }
+        .question-title { font-weight: bold; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 15px; border-bottom: 1px dashed #eee; padding-bottom: 10px;}
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .checkbox-item { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; font-size: 14px; color: #4a5568; line-height: 1.4; padding: 8px; border-radius: 6px; transition: 0.2s; }
+        .checkbox-item:hover { background-color: #f0f7ff; }
+        .checkbox-item input[type="checkbox"] { margin-top: 2px; cursor: pointer; width: 16px; height: 16px; accent-color: var(--accent); }
+        
         .btn-group { margin-top: 40px; display: flex; gap: 20px; flex-wrap: wrap; }
         button { flex: 1; min-width: 200px; padding: 16px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 700; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-gen { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3); }
-        .btn-gen:hover { background: #2980b9; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4); }
-        .btn-gen:disabled { background: #a0aec0; cursor: not-allowed; box-shadow: none; transform: none; }
-        .btn-export { background: var(--success); color: white; display: none; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); }
-        .btn-export:hover { background: #219653; transform: translateY(-2px); }
+        .btn-gen { background: var(--accent); color: white; }
+        .btn-gen:hover { background: #2980b9; transform: translateY(-2px); }
+        .btn-gen:disabled { background: #a0aec0; cursor: not-allowed; }
+        .btn-export { background: var(--success); color: white; display: none; }
         
-        /* 预览区样式 */
         #previewContainer { margin-top: 50px; display: none; }
-        #previewBox { padding: 35px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); line-height: 1.8; color: #2d3748; }
-        #previewBox h1 { color: var(--primary); border-bottom: 2px solid #edf2f7; padding-bottom: 12px; margin-top: 0; font-size: 26px; }
-        #previewBox h2 { color: var(--accent); margin-top: 25px; font-size: 20px; }
-        #previewBox h3 { background: none; border-left: none; padding-left: 0; color: #4a5568; font-size: 16px; margin-top: 20px; }
+        #previewBox { padding: 40px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.04); line-height: 1.8; color: #2d3748; }
+        #previewBox h1 { color: var(--primary); border-bottom: 2px solid #edf2f7; padding-bottom: 12px; font-size: 26px; margin-top: 0;}
+        #previewBox h2 { color: var(--accent); margin-top: 30px; font-size: 20px; }
+        #previewBox h3 { color: #4a5568; font-size: 16px; margin-top: 20px; background: none; border: none; padding: 0;}
         #previewBox blockquote { border-left: 4px solid var(--accent); padding-left: 15px; margin: 15px 0; color: #718096; background: #f7fafc; padding-block: 10px; border-radius: 0 8px 8px 0; }
-        #previewBox strong { color: #1a202c; }
-        #previewBox ul, #previewBox ol { padding-left: 20px; }
-        #previewBox li { margin-bottom: 8px; }
         
         .loading { display: none; text-align: center; padding: 30px; color: var(--accent); font-weight: bold; font-size: 18px; }
         .loading i { animation: spin 1.5s linear infinite; margin-right: 10px; font-size: 24px; vertical-align: middle; }
@@ -71,82 +70,63 @@
 
     <div class="header">
         <h1>学生成长画像建档系统</h1>
-        <p><i class="fas fa-brain"></i> 六维能力评估 × AI 深度总结报告生成</p>
+        <p><i class="fas fa-tags"></i> 行为标签多选模式，还原学生真实且立体的学习状态</p>
     </div>
     
     <form id="profileForm">
         <h3>一、学生快速检索</h3>
         <div class="grid">
             <div class="full-width">
-                <label><i class="fas fa-search"></i> 选择现有学生 (自动加载基础信息及对应评估维度)</label>
+                <label class="main-label"><i class="fas fa-search"></i> 选择现有学生 (自动加载基础信息及专属评估维度)</label>
                 <select id="student_select" onchange="autoFillStudent()">
                     <option value="">-- 请选择学生快速填充 --</option>
                 </select>
             </div>
             <div>
-                <label>姓名</label>
+                <label class="main-label">姓名</label>
                 <input type="text" id="stu_name" required>
             </div>
             <div>
-                <label>性别</label>
-                <select id="stu_gender">
-                    <option value="男">男</option>
-                    <option value="女">女</option>
-                </select>
+                <label class="main-label">性别</label>
+                <input type="text" id="stu_gender" readonly>
             </div>
             <div>
-                <label>班级/课程</label>
+                <label class="main-label">班级/课程</label>
                 <input type="text" id="stu_class" readonly>
             </div>
             <div>
-                <label>上课时间</label>
+                <label class="main-label">上课时间</label>
                 <input type="text" id="stu_time" readonly>
             </div>
         </div>
 
-        <h3>二、阶段深度评估 (基于6大核心维度)</h3>
-        <div id="dynamic_questions" class="grid">
-            <p style="color:#a0aec0; grid-column: 1/-1; text-align: center; font-size: 15px; padding: 20px 0;">
-                <i class="fas fa-info-circle"></i> 请先在上方选择学生，系统将自动加载对应年龄段的评估问题。
+        <h3>二、专项行为评估 (可多选，勾选符合其近期表现的描述)</h3>
+        <div id="dynamic_questions">
+            <p style="color:#a0aec0; text-align: center; font-size: 15px; padding: 20px 0;">
+                <i class="fas fa-info-circle"></i> 请先在上方选择学生，系统将自动生成对应的多选行为标签面板。
             </p>
         </div>
 
-        <h3>三、通用特质与核心关注点</h3>
+        <h3>三、通用特质补充</h3>
         <div class="grid">
             <div>
-                <label>气质类型</label>
+                <label class="main-label">性格基调</label>
                 <select id="stu_temp">
-                    <option value="平和型">平和型 (情绪稳定/温和/包容)</option>
-                    <option value="活泼型">活泼型 (外向/反应快/易分心)</option>
-                    <option value="力量型">力量型 (主见强/好胜/执行力高)</option>
-                    <option value="完美型">完美型 (严谨/在意细节/易挫败)</option>
-                </select>
-            </div>
-            <div>
-                <label>家长参与度</label>
-                <select id="parent_involve">
-                    <option value="密切参与">密切参与 (高频沟通/非常重视)</option>
-                    <option value="一般关注">一般关注 (定期了解即可)</option>
-                    <option value="放手型">放手型 (完全交给机构/较少过问)</option>
-                </select>
-            </div>
-            <div>
-                <label>近期学业表现</label>
-                <select id="academic">
-                    <option value="优秀">优秀 (吸收快/能举一反三)</option>
-                    <option value="中等" selected>中等 (平稳进步/能跟上进度)</option>
-                    <option value="待提升">待提升 (理解较慢/需重点帮扶)</option>
+                    <option value="平和/包容/稳定">平和/包容/稳定</option>
+                    <option value="活泼/外向/跳跃">活泼/外向/跳跃</option>
+                    <option value="果断/好胜/主见强">果断/好胜/主见强</option>
+                    <option value="严谨/敏感/在意细节">严谨/敏感/在意细节</option>
                 </select>
             </div>
             <div class="full-width">
-                <label><i class="fas fa-pen-nib"></i> 补充关注点 (AI 将结合这些标签进行深度润色)</label>
-                <textarea id="focus_tags" rows="3" placeholder="例如：最近几次课特别容易走神；虽然代码写得乱，但是很有创意；需要老师多给正向激励..."></textarea>
+                <label class="main-label"><i class="fas fa-pen-nib"></i> 补充文字说明 (选填，AI 会将这些细节融入报告中)</label>
+                <textarea id="focus_tags" rows="3" placeholder="例如：最近几次课特别容易走神，喜欢跟同桌聊天；虽然代码写得乱，但是很有创意；需要老师多用积分奖励刺激..."></textarea>
             </div>
         </div>
 
         <div class="btn-group">
             <button type="button" class="btn-gen" id="genBtn" onclick="generateAIProfile()">
-                <i class="fas fa-magic"></i> ✨ 生成专业评估报告
+                <i class="fas fa-magic"></i> ✨ 综合生成 AI 画像报告
             </button>
             <button type="button" id="downloadBtn" class="btn-export" onclick="downloadMD()">
                 <i class="fas fa-file-download"></i> 导出 MD 文档
@@ -155,7 +135,7 @@
     </form>
 
     <div id="loading" class="loading">
-        <i class="fas fa-spinner"></i> AI 专家正在整合 6 大维度数据，为您撰写深度报告...
+        <i class="fas fa-spinner"></i> AI 正在深度交叉分析多维行为标签，为您撰写定制化报告...
     </div>
 
     <div id="previewContainer">
@@ -167,7 +147,6 @@
 </div>
 
 <script>
-    // 1. 学生数据库 (已更新所有最新修正的性别)
     const studentDB = [
         {name:"梁昕乔", sex:"女", class:"发现世界", time:"周四 19:00-20:00"},
         {name:"钟昀昊", sex:"男", class:"发现世界", time:"周四 19:00-20:00"},
@@ -200,19 +179,15 @@
         {name:"方柳莫", sex:"女", class:"SPIKE02", time:"周日 10:30-12:00"}
     ];
 
-    // 初始化：填充下拉菜单 & 读取本地缓存的 API Key
     window.onload = () => {
         const select = document.getElementById('student_select');
-        // 按班级排序方便查找
         studentDB.sort((a,b) => a.class.localeCompare(b.class)).forEach((s, index) => {
             select.options.add(new Option(`[${s.class}] - ${s.name}`, index));
         });
-        
         const cachedKey = localStorage.getItem('gemini_api_key');
         if(cachedKey) document.getElementById('api_key').value = cachedKey;
     };
 
-    // 2. 自动填充与 6 维度动态问题加载
     function autoFillStudent() {
         const val = document.getElementById('student_select').value;
         if(val === "") return;
@@ -221,88 +196,93 @@
         document.getElementById('stu_gender').value = s.sex;
         document.getElementById('stu_class').value = s.class;
         document.getElementById('stu_time').value = s.time;
-        
         renderDynamicQuestions(s.class);
     }
+
+    let currentQuestionsData = []; // 保存当前题目的配置，方便提取数据
 
     function renderDynamicQuestions(className) {
         const box = document.getElementById('dynamic_questions');
         box.innerHTML = '';
-        let questions = [];
+        currentQuestionsData = [];
 
+        // 针对不同课程的精细化多选行为标签库
         if(className.includes("发现世界")) {
-            questions = [
-                {id: 'q1', label: '1. 精细动作与手眼协调', opts: ['灵活 (精准捏取/对齐)','合格 (大块拼接顺畅)','待提升 (手部力量/准确度不足)']},
-                {id: 'q2', label: '2. 语言表达与转述', opts: ['清晰 (能描述作品功能/故事)','基础 (能说出零件名称/短句)','较弱 (较少主动开口)']},
-                {id: 'q3', label: '3. 专注时长与抗干扰', opts: ['极佳 (>15分钟沉浸)','正常 (5-15分钟)','易分心 (极易受外界干扰)']},
-                {id: 'q4', label: '4. 社交互动意识', opts: ['合作型 (乐于分享/轮流)','平行型 (各玩各的,互不干扰)','冲突型 (易发生争抢/需要调解)']},
-                {id: 'q5', label: '5. 情绪稳定性与抗挫', opts: ['积极稳定 (不怕拼错)','依赖型 (遇挫首选求助老师)','脆弱型 (遇挫易哭闹/发脾气/放弃)']},
-                {id: 'q6', label: '6. 观察与模仿能力', opts: ['敏锐 (能自主发现图纸细节)','普通 (能跟随老师一步步做)','走马观花 (常漏掉关键步骤)']}
+            currentQuestionsData = [
+                {id: 'q1', title: '<i class="fas fa-cubes"></i> 动手与空间搭建', opts: ['能精准拼接小尺寸零件', '大块积木拼接顺畅', '经常需要老师手把手辅助', '能识别常见几何图形', '能在图纸和实物间建立联系', '经常出现搭建方向颠倒或镜像']},
+                {id: 'q2', title: '<i class="fas fa-eye"></i> 观察与专注力', opts: ['能敏锐发现图纸上的细节', '主要依赖模仿老师的搭建动作', '经常漏掉关键步骤或零件', '能够安坐专注15分钟以上', '容易被周围同学干扰或吸引', '遇到感兴趣的主题会极度专注']},
+                {id: 'q3', title: '<i class="fas fa-smile-beam"></i> 情绪与互动表达', opts: ['作品倒塌或搭错能自己平静重建', '遇到拼错会主动举手求助', '拼错时容易发脾气或哭闹', '能大声介绍自己的作品', '喜欢和同伴分享零件', '偏好独自玩耍，不愿交流']}
             ];
         } 
         else if(className.includes("Wedo")) {
-            questions = [
-                {id: 'q1', label: '1. 空间与立体结构感', opts: ['极佳 (能迅速将2D图纸转3D)','合格 (偶尔需要方向提示)','较弱 (常出现镜像/错位错误)']},
-                {id: 'q2', label: '2. 编程逻辑启蒙', opts: ['深刻 (理解顺序与循环概念)','模仿 (能照猫画虎复现代码)','模糊 (对编程模块功能无概念)']},
-                {id: 'q3', label: '3. 任务执行与坚持度', opts: ['沉浸式 (遇难主动尝试解决)','中等 (遇到困难易停滞等待)','需督促 (全程需要老师推着走)']},
-                {id: 'q4', label: '4. 规则遵循与收纳', opts: ['自觉 (自主分类归还零件)','被动 (提醒后能做好收纳)','无序 (缺乏收纳与保护零件意识)']},
-                {id: 'q5', label: '5. 同伴合作意识', opts: ['融洽 (能与搭档合理分工)','竞争 (偶尔争抢核心操作权)','孤立 (完全无法合作/排斥搭档)']},
-                {id: 'q6', label: '6. 求知欲与探索力', opts: ['旺盛 (经常提问"为什么")','达标 (完成规定任务即止)','被动 (缺乏进一步探索的兴趣)']}
+            currentQuestionsData = [
+                {id: 'q1', title: '<i class="fas fa-cogs"></i> 机械结构与排障', opts: ['理解齿轮传动等简单物理原理', '经常装错受力点导致结构不稳', '只会照图纸拼，不懂机械原理', '发现不转会先检查连接线', '遇到问题直接停滞等待', '会主动向同伴或老师请教原因']},
+                {id: 'q2', title: '<i class="fas fa-laptop-code"></i> 编程启蒙与创造', opts: ['理解事件触发(如点击绿旗)', '能使用简单的循环和条件模块', '对代码块的作用完全不理解', '喜欢在标准模型上加装饰', '能改变代码参数观察不同效果', '完全不愿偏离标准答案']},
+                {id: 'q3', title: '<i class="fas fa-users"></i> 习惯与团队合作', opts: ['能按颜色/形状分类收纳零件', '经常弄丢小零件或桌面极度杂乱', '提醒后能主动收拾器材', '能与搭档合理分配搭建和编程任务', '经常与搭档争抢核心操作权', '完全无法合作，各干各的']}
             ];
         }
         else if(className.includes("SPIKE")) {
-            questions = [
-                {id: 'q1', label: '1. 算法设计与逻辑', opts: ['独立设计 (含条件/多重循环)','提示后完成 (需点拨关键逻辑)','基础拼接 (仅能处理直线逻辑)']},
-                {id: 'q2', label: '2. 工程排障 (Debugging)', opts: ['独立定位 (能找出软硬件Bug)','愿意尝试 (但常找错方向)','完全依赖 (遇错直接喊老师)']},
-                {id: 'q3', label: '3. 软硬件结合认知', opts: ['透彻 (深刻理解传感器数值反馈)','套用 (知其然不知其所以然)','割裂 (代码与机械结构概念脱节)']},
-                {id: 'q4', label: '4. 团队角色定位', opts: ['主导者 (架构师/核心开发)','执行者 (积极配合完成分配任务)','边缘化 (游离于团队作业之外)']},
-                {id: 'q5', label: '5. 创新与优化意愿', opts: ['主动优化 (为作品增加新功能/结构)','偶尔尝试 (微调参数或外观)','拒绝改动 (按部就班,怕改坏)']},
-                {id: 'q6', label: '6. 项目表达与复盘', opts: ['条理清晰 (能讲解运行原理)','引导表达 (需老师提问才能说出重点)','怯场混乱 (不知如何介绍自己的作品)']}
+            currentQuestionsData = [
+                {id: 'q1', title: '<i class="fas fa-robot"></i> 软硬协同与工程思维', opts: ['能准确定位是代码Bug还是硬件Bug', '会使用测试代码辅助排查硬件', '严重依赖老师帮忙找Bug', '搭建时会考虑受力支撑与结构加固', '结构松散，运行时经常散架', '不愿花时间优化物理结构']},
+                {id: 'q2', title: '<i class="fas fa-code-branch"></i> 逻辑与输入基础', opts: ['熟练运用条件判断(If-Else)', '理解传感器数值反馈并能灵活应用', '仅能死记硬背抄写参数，不懂原理', '有中英文状态和全半角标点的切换意识', '能较为熟练地使用键盘打字', '打字速度缓慢(单指禅)或抗拒打字']},
+                {id: 'q3', title: '<i class="fas fa-comments"></i> 项目复盘与数学思维', opts: ['能清晰讲解代码与硬件的联动原理', '能说出项目中遇到的困难及解决办法', '只能简单演示作品，不知过程', '能理解并运用变量记录数据', '理解笛卡尔坐标系概念', '需要具象生活案例辅助才能理解抽象概念']}
             ];
         }
         else if(className.includes("AICODE")) {
-            questions = [
-                {id: 'q1', label: '1. 抽象逻辑思维', opts: ['熟练 (轻松驾驭变量/函数/列表)','需具象化 (需生活案例辅助理解)','易混淆 (抽象概念理解极为吃力)']},
-                {id: 'q2', label: '2. 代码规范与组织', opts: ['结构清晰 (命名规范,有模块化意识)','提醒后整理 (代码堆砌但能看懂)','面条式代码 (随意命名,结构混乱)']},
-                {id: 'q3', label: '3. 项目规划能力', opts: ['谋定后动 (有伪代码/流程图意识)','边写边想 (走一步看一步)','毫无头绪 (无计划地胡乱尝试)']},
-                {id: 'q4', label: '4. 自主解决问题途径', opts: ['善用工具 (优先查阅文档/搜索/报错日志)','请教同伴 (优先问同学)','依赖老师 (遇Bug停止思考直接求助)']},
-                {id: 'q5', label: '5. AI 工具协同应用', opts: ['精准驾驭 (能编写优质Prompt引导AI)','简单对话 (索取现成答案/代码)','排斥/不习惯 (不愿尝试AI辅助)']},
-                {id: 'q6', label: '6. 元认知与反思能力', opts: ['深度反思 (能准确评估自身代码优劣)','结果导向 (仅关注代码是否跑通)','无法解释 (写出来了但讲不明白原理)']}
+            currentQuestionsData = [
+                {id: 'q1', title: '<i class="fas fa-keyboard"></i> 代码编写与打字规范', opts: ['熟练盲打且中英文标点切换准确', '速度中等，需要看键盘找键', '打字极慢，经常因为全半角或拼写报错', '代码缩进和模块排版非常规范', '命名随意，写的是毫无结构的面条式代码', '有写注释标记代码功能的习惯']},
+                {id: 'q2', title: '<i class="fas fa-project-diagram"></i> 抽象算法与元认知', opts: ['轻松驾驭多重循环与嵌套逻辑', '能熟练使用函数/列表等高级数据结构', '遇到复杂逻辑容易大脑宕机，依赖抄写', '动手敲代码前有画流程图/写伪代码的习惯', '边写边改走一步看一步，缺乏全局观', '写完能跑通即可，缺乏优化和反思意识']},
+                {id: 'q3', title: '<i class="fas fa-robot"></i> AI协作与排障(Debug)', opts: ['习惯优先查看控制台红字报错日志定位', '遇到报错直接放弃思考，立马呼叫老师', '通过打印(Print)调试定位数据流向', '能清晰描述需求并引导AI生成或修改代码', '仅仅把AI当成索取现成答案的作弊工具', '遇到难题死磕到底，有钻研的韧劲']}
             ];
         }
 
-        questions.forEach(q => {
-            let d = document.createElement('div');
-            d.innerHTML = `<label title="${q.label}">${q.label}</label>
-                           <select class="dynamic-val" data-label="${q.label}" id="${q.id}">
-                           ${q.opts.map(o => `<option value="${o}">${o}</option>`).join('')}
-                           </select>`;
-            box.appendChild(d);
+        // 渲染复选框 UI
+        currentQuestionsData.forEach(q => {
+            let html = `
+                <div class="question-block">
+                    <div class="question-title">${q.title}</div>
+                    <div class="checkbox-grid" id="${q.id}">
+                        ${q.opts.map((opt, i) => `
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="${q.id}" value="${opt}">
+                                <span>${opt}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            box.insertAdjacentHTML('beforeend', html);
         });
     }
 
-    // 3. AI 调用与全新 Prompt 策略
     let finalMD = "";
     async function generateAIProfile() {
         const key = document.getElementById('api_key').value.trim();
         if(!key) { alert("⚠️ 请在页面顶部填入 Gemini API Key"); return; }
         localStorage.setItem('gemini_api_key', key);
 
-        const data = {
-            name: document.getElementById('stu_name').value,
-            class: document.getElementById('stu_class').value,
-            temp: document.getElementById('stu_temp').value,
-            academic: document.getElementById('academic').value,
-            parent: document.getElementById('parent_involve').value,
-            tags: document.getElementById('focus_tags').value
-        };
+        const stuName = document.getElementById('stu_name').value;
+        const stuClass = document.getElementById('stu_class').value;
+        const stuTemp = document.getElementById('stu_temp').value;
+        const focusTags = document.getElementById('focus_tags').value;
 
-        if(!data.name || !data.class) { alert("⚠️ 请先选择或填写学生基本信息"); return; }
+        if(!stuName || !stuClass) { alert("⚠️ 请先选择或填写学生基本信息"); return; }
 
-        let dynamicInfo = "";
-        document.querySelectorAll('.dynamic-val').forEach(el => {
-            dynamicInfo += `- **${el.getAttribute('data-label')}**: ${el.value}\n`;
+        // 收集所有勾选的多选标签
+        let selectedBehaviors = [];
+        currentQuestionsData.forEach(q => {
+            const checkboxes = document.querySelectorAll(`input[name="${q.id}"]:checked`);
+            if(checkboxes.length > 0) {
+                let sectionLabel = q.title.replace(/<[^>]+>/g, '').trim(); // 移除图标HTML标签
+                let vals = Array.from(checkboxes).map(cb => cb.value).join("、");
+                selectedBehaviors.push(`- **${sectionLabel}**: 表现出“${vals}”的特征。`);
+            }
         });
+
+        if(selectedBehaviors.length === 0) {
+            alert("⚠️ 请至少在『二、专项行为评估』中勾选几个符合学生的行为标签！");
+            return;
+        }
 
         const loading = document.getElementById('loading');
         const previewContainer = document.getElementById('previewContainer');
@@ -313,42 +293,39 @@
         loading.style.display = 'block';
         previewContainer.style.display = 'none';
 
-        // 核心 AI 提示词（强化专业拆解与分析）
-        const prompt = `你是一位资深教育心理专家和STEM教育评价专家。请根据以下详尽的调查问卷数据，为学生撰写一份专业的 Markdown 格式画像报告。
+        const prompt = `你是一位深谙 STEM 教学法的资深教育专家。请根据以下教师收集到的多维度的行为标签，将这些离散的现象融合、升华，生成一份逻辑严密、专业客观的 Markdown 格式学生画像。
 
-【一、 学生基础数据】
-- 姓名：${data.name}
-- 课程/班级：${data.class}
-- 近期学业表现：${data.academic}
-- 气质类型：${data.temp}
-- 家长参与度：${data.parent}
-- 核心关注点：${data.tags || "无补充，请依靠评估数据进行分析"}
+【一、 学生基础】
+- 姓名：${stuName}
+- 课程属性：${stuClass} (请注意区分是实体搭建、软硬结合，还是纯代码课程)
+- 性格基调：${stuTemp}
+- 教师补充的特别关注细节：${focusTags || "无补充，依据评估标签"}
 
-【二、 本阶段 6 维专业评估结果】
-${dynamicInfo}
+【二、 本次评估提炼的实际行为标签（多选题结果）】
+${selectedBehaviors.join('\n')}
 
-【三、 输出格式与内容要求】（严格遵照以下 Markdown 排版，语气客观、专业、富有教育温度）：
+【三、 撰写要求】
+不要机械罗列我给你的标签。你需要用教育心理学和计算思维/工程思维的专业视角去解释这些标签。如果出现矛盾的标签（比如打字慢但算法强），请分析这种反差产生的原因。
 
-# 🧑‍🎓 学生画像档案：${data.name}
-> 所属课程：${data.class} | 评估生成日期：${new Date().toLocaleDateString()}
+必须严格输出以下 Markdown 结构：
+
+# 🧑‍🎓 综合评估档案：${stuName}
+> 课程阶段：${stuClass} | 评估生成：${new Date().toLocaleDateString()}
 
 ---
 
-## 💡 一、 画像速览
-（结合数据，用不超过 50 字的一句话，精准、凝练地概括该学生的现阶段核心特质与潜力。）
+## 🎯 一、 学习状态综述
+（结合性格基调和所有勾选的标签，用50-80字精炼总结该生现阶段最突出的能力优势，以及最阻碍其发展的瓶颈。）
 
-## 📊 二、 核心能力深度解析
-（请根据年龄段认知发展规律，将上述【6 维专业评估结果】进行归类和深度分析，不只罗列结果，要解释背后的原因）：
-### 1. 技术与专业硬实力
-（深度分析其在逻辑/结构/代码/工具使用等技术方面的实际表现和发展水平）
-### 2. 综合素养与软实力
-（深度分析其在专注力、情绪抗挫、团队协作、规则意识、元认知等非智力因素上的表现）
+## 🧠 二、 专业能力与习惯透视
+（将行为标签拆解为以下两个维度进行专业剖析）：
+### 1. 技术硬实力发展
+（针对其在打字代码规范、算法逻辑、或是机械结构搭建上的具体行为表现进行点评与定性。）
+### 2. 执行力与软实力素养
+（针对其抗挫折能力、专注度、团队合作、遇难排障策略、对AI工具利用的态度等非智力因素进行点评。）
 
-## 🎯 三、 课堂教学引导策略
-（针对其在 ${data.class} 课程中的薄弱环节或优势潜力，给任课教师提供 3 条具体的、实操性强的教学干预建议）
-
-## 🤝 四、 家校协同建议
-（结合其目前家长“${data.parent}”的参与程度，给出 2 条实用的家庭辅导建议或家校沟通切入点，帮助家长更好地陪伴孩子成长）
+## 🛠️ 三、 下一阶段教学建议
+（结合其薄弱项，给一线教师提供 3 条极为具体的、能在课堂上立刻落地的干预手段。比如针对全半角错误该怎么练，针对空间感差该怎么教。）
 `;
 
         try {
@@ -357,21 +334,17 @@ ${dynamicInfo}
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
-            
-            if(!response.ok) throw new Error("API 请求失败，请检查 Key 或网络");
-            
+            if(!response.ok) throw new Error("API 请求失败");
             const res = await response.json();
             finalMD = res.candidates[0].content.parts[0].text;
             
             previewBox.innerHTML = marked.parse(finalMD);
             previewContainer.style.display = 'block';
             document.getElementById('downloadBtn').style.display = 'flex';
-            
-            // 自动滚动到报告区域
             previewContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             
         } catch (e) {
-            alert("❌ 生成失败！原因可能是：\n1. API Key 不正确或已失效\n2. 您的网络环境无法连接到 Google 接口\n3. 接口调用超限");
+            alert("❌ 生成失败！请确认：\n1. API Key 正确无多余空格\n2. 您的网络已开启全局代理\n3. 稍后再试(避免触发限流)");
             console.error(e);
         } finally {
             genBtn.disabled = false;
@@ -379,13 +352,12 @@ ${dynamicInfo}
         }
     }
 
-    // 4. 下载逻辑
     function downloadMD() {
-        const name = document.getElementById('stu_name').value || "学生";
+        const stuName = document.getElementById('stu_name').value || "学生";
         const blob = new Blob([finalMD], { type: 'text/markdown;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `[画像]_${name}_${new Date().toISOString().slice(0,10)}.md`;
+        a.download = `[评估档案]_${stuName}_${new Date().toISOString().slice(0,10)}.md`;
         a.click();
     }
 </script>
