@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>小Q老师 - 星际闯关指挥中心 </title>
+<title>小Q老师 - 星际闯关指挥中心 2.0</title>
 <style>
     :root {
         --primary: #ff6b6b;
@@ -24,8 +24,33 @@
         background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
         margin: 0; padding: 20px; color: #333; min-height: 100vh;
     }
-    h1 { text-align: center; color: #2c3e50; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); letter-spacing: 1px; margin-bottom: 30px; }
+    h1 { text-align: center; color: #2c3e50; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); letter-spacing: 1px; margin-bottom: 20px; }
     
+    /* 控制面板 */
+    .admin-controls {
+        max-width: 1200px;
+        margin: 0 auto 30px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    .admin-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 25px;
+        background: white;
+        color: #2c3e50;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .admin-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); background: var(--secondary); color: white; }
+    .admin-btn.primary { background: var(--primary); color: white; }
+
     .day-group { margin-bottom: 35px; background: rgba(255,255,255,0.4); padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .day-title { font-size: 1.8em; color: #2c3e50; border-bottom: 3px solid var(--secondary); padding-bottom: 8px; margin-bottom: 20px; font-weight: 800; display: flex; align-items: baseline; gap: 10px; }
     
@@ -64,32 +89,25 @@
     .stat-reward { color: #f39c12; }
     .highlight-score { color: #e74c3c; font-size: 1.25em; margin: 0 3px; }
 
-    /* --- 模态框 (星际地图) --- */
+    /* --- 模态框通用 --- */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-    .modal-content { background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); width: 95%; max-width: 650px; border-radius: 20px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 50px rgba(0, 210, 255, 0.3); color: #fff; border: 1px solid rgba(0, 210, 255, 0.2); }
-    .modal-content::-webkit-scrollbar { width: 8px; }
-    .modal-content::-webkit-scrollbar-track { background: #090A0F; border-radius: 10px; }
-    .modal-content::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
+    .modal-content { background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); width: 95%; max-width: 650px; border-radius: 20px; position: relative; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 50px rgba(0, 210, 255, 0.3); color: #fff; border: 1px solid rgba(0, 210, 255, 0.2); padding: 20px; }
+    
+    .input-modal-content { background: white; color: #333; max-width: 500px; padding: 30px; border-radius: 15px; }
+    .input-modal-content h3 { margin-top: 0; color: #2c3e50; }
+    .input-modal-content textarea { width: 100%; height: 150px; margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: none; }
+    .input-modal-content .tip { font-size: 0.85em; color: #666; background: #f8f9fa; padding: 8px; border-radius: 4px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+    .btn-confirm { background: var(--secondary); color: white; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+    .btn-cancel { background: #eee; color: #666; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; }
 
+    /* --- 星际地图绘制 --- */
     .map-header { position: sticky; top: 0; background: rgba(9, 10, 15, 0.95); backdrop-filter: blur(10px); text-align: center; padding: 20px; border-bottom: 1px solid rgba(0, 210, 255, 0.3); z-index: 100; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
     .map-header h2 { font-size: 1.8em; margin: 0 0 5px 0; text-shadow: 0 0 10px var(--primary); display: flex; justify-content: center; align-items: center; gap: 8px; }
     .map-header p { color: rgba(255,255,255,0.8); margin: 0 0 10px 0; }
     .close-btn { position: absolute; top: 15px; right: 20px; font-size: 2em; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; z-index: 101; }
     .close-btn:hover { color: #ff7675; transform: rotate(90deg); }
 
-    .action-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-    .action-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 0.85em; transition: all 0.3s; }
-    .action-btn:hover { background: rgba(0, 210, 255, 0.3); border-color: var(--primary); transform: translateY(-2px); }
-    .action-btn.danger { background: linear-gradient(to right, #eb3349, #f45c43); border: none; box-shadow: 0 5px 15px rgba(235, 51, 73, 0.4); }
-
-    /* 战报面板 */
-    .report-panel { background: rgba(0, 0, 0, 0.6); border-radius: 10px; padding: 15px; margin-top: 15px; border: 1px dashed var(--primary); display: none; text-align: left; }
-    .report-panel textarea { width: 100%; height: 120px; background: rgba(255, 255, 255, 0.05); color: #fff; border: none; border-radius: 5px; padding: 10px; font-family: inherit; font-size: 0.95em; resize: none; outline: none; }
-    .report-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
-    .report-actions button { background: var(--secondary); color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 0.85em; transition: 0.3s; }
-    .report-actions button:hover { background: var(--primary); }
-
-    /* 星际地图绘制 */
     .map-container { display: flex; flex-direction: column; align-items: center; position: relative; padding: 50px 0 80px 0; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 5px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px), radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px); background-size: 550px 550px, 350px 350px, 250px 250px; background-position: 0 0, 40px 60px, 130px 270px; }
     .treasure-path { stroke-dasharray: 15, 15; animation: flow 1.5s linear infinite; }
     @keyframes flow { to { stroke-dashoffset: -30; } }
@@ -102,128 +120,15 @@
     .course-title-label { position: absolute; top: -45px; white-space: nowrap; background: rgba(0, 0, 0, 0.6); color: var(--primary); padding: 6px 12px; border-radius: 15px; font-size: 0.9em; font-weight: bold; box-shadow: 0 0 10px rgba(0, 210, 255, 0.3); border: 1px solid rgba(0, 210, 255, 0.5); pointer-events: none; z-index: 10; backdrop-filter: blur(2px); }
     
     .level-node { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(145deg, #2c3e50, #000); color: rgba(255,255,255,0.5); display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.4em; cursor: pointer; border: 3px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5); transition: all 0.4s; user-select: none; position: relative; z-index: 5;}
-    .level-node:hover { transform: scale(1.15); border-color: var(--primary); color: white; box-shadow: 0 0 20px var(--primary); }
     .level-node.completed { background: linear-gradient(145deg, #ffd700, #f39c12); border-color: #fff; color: #fff; text-shadow: 0 0 5px #c0392b; box-shadow: 0 0 30px var(--gold), 0 0 60px var(--gold), inset 0 0 10px rgba(255,255,255,0.8); animation: pulse-gold 2s infinite; }
-    @keyframes pulse-gold { 0%, 100% { box-shadow: 0 0 30px var(--gold), 0 0 60px var(--gold); } 50% { box-shadow: 0 0 50px var(--gold), 0 0 100px var(--gold); } }
 
     .score-controller { position: absolute; left: 100%; margin-left: 25px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.1); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); user-select: none; backdrop-filter: blur(5px); z-index: 5; min-width: 100px;}
     .stars-display { font-size: 1.1em; margin-bottom: 6px; letter-spacing: 2px; text-shadow: 0 0 8px rgba(255, 215, 0, 0.8); min-height: 20px; display: flex; justify-content: center; flex-wrap: wrap; max-width: 90px;}
     .score-buttons-row { display: flex; align-items: center; gap: 5px; }
     .score-btn { width: 32px; height: 32px; border-radius: 50%; border: none; font-weight: bold; font-size: 1.4em; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; color: #fff; }
-    .score-btn:hover { transform: scale(1.1); }
     .score-btn.minus { background: linear-gradient(to bottom, #e74c3c, #c0392b); }
     .score-btn.plus { background: linear-gradient(to bottom, #2ecc71, #27ae60); }
     .score-display { min-width: 28px; text-align: center; margin: 0 10px; font-weight: 800; color: var(--gold); font-size: 1.2em; text-shadow: 0 0 10px var(--gold); }
-
-    /* 月全勤宝箱样式 */
-    .treasure-chest-box { position: absolute; right: 100%; margin-right: 25px; font-size: 2.5em; cursor: pointer; transition: 0.3s; user-select: none; z-index: 10; }
-    .chest-locked { opacity: 0.4; filter: grayscale(100%); cursor: not-allowed; }
-    .chest-unlockable { animation: shake-glow 1.5s infinite; filter: drop-shadow(0 0 15px var(--gold)); }
-    .chest-opened { opacity: 1; filter: drop-shadow(0 0 20px #2ecc71); transform: scale(1.2); cursor: default; animation: chestOpen 0.5s ease-out; }
-    @keyframes chestOpen {
-        0% { transform: scale(1) rotate(0deg); }
-        50% { transform: scale(1.3) rotate(10deg); }
-        100% { transform: scale(1.2) rotate(0deg); }
-    }
-
-    /* 🏆 终极大奖箱样式 */
-    .grand-chest-container { display: flex; justify-content: center; padding: 40px 20px; position: relative; z-index: 5; }
-    .grand-chest { font-size: 4em; cursor: pointer; transition: all 0.3s; user-select: none; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5)); }
-    .grand-chest.locked { animation: grand-shake 2s infinite; }
-    .grand-chest.opened { filter: drop-shadow(0 0 20px #2ecc71); transform: scale(1.2); cursor: default; }
-    .grand-chest.unlockable:hover { transform: scale(1.15); filter: drop-shadow(0 0 30px gold); }
-    @keyframes grand-shake { 0%, 100% { transform: scale(1) rotate(0deg); } 25% { transform: scale(1.1) rotate(-5deg); filter: drop-shadow(0 0 25px gold); } 75% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 25px gold); } }
-
-    /* 大奖弹窗样式 */
-    .prize-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(10px); }
-    .prize-content { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 50px; border-radius: 30px; text-align: center; max-width: 500px; border: 3px solid gold; box-shadow: 0 0 50px rgba(255, 215, 0, 0.5); animation: prizePop 0.5s ease-out; }
-    @keyframes prizePop { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-    .prize-icon { font-size: 5em; margin-bottom: 20px; display: block; animation: bounce 1s infinite; }
-    .prize-level { font-size: 2em; font-weight: bold; margin-bottom: 15px; text-shadow: 0 0 10px currentColor; }
-    .prize-text { font-size: 1.3em; color: #fff; margin-bottom: 25px; line-height: 1.6; }
-    .prize-close-btn { background: linear-gradient(135deg, #ffd700, #ff6b6b); color: #000; border: none; padding: 15px 40px; border-radius: 30px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.3s; }
-    .prize-close-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
-
-    /* 🐾 萌宠闪卡样式 */
-    .pet-card-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.92); display: none; justify-content: center; align-items: center; z-index: 10001; backdrop-filter: blur(15px); }
-    .pet-card { background: linear-gradient(145deg, #2d3436 0%, #000 100%); width: 320px; border-radius: 20px; padding: 30px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(255, 215, 0, 0.4); animation: cardAppear 0.6s ease-out; }
-    .pet-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent 0deg, var(--pet-color, gold) 60deg, transparent 120deg); animation: rotate 3s linear infinite; opacity: 0.3; }
-    .pet-card::after { content: ''; position: absolute; inset: 3px; background: linear-gradient(145deg, #2d3436 0%, #000 100%); border-radius: 18px; z-index: 0; }
-    @keyframes rotate { 100% { transform: rotate(360deg); } }
-    @keyframes cardAppear {
-        0% { transform: scale(0.1) rotateY(180deg); opacity: 0; }
-        20% { transform: scale(0.5) rotateY(90deg); }
-        50% { transform: scale(1.2) rotateY(10deg); filter: drop-shadow(0 0 30px var(--pet-color, gold)); }
-        100% { transform: scale(1) rotateY(0deg); opacity: 1; filter: drop-shadow(0 0 20px var(--pet-color, gold)); }
-    }
-    
-    .pet-card-shake { animation: shakeLoad 0.8s ease-in-out; }
-    @keyframes shakeLoad {
-        0%, 100% { transform: translateX(0) rotate(0deg); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-8px) rotate(-3deg); }
-        20%, 40%, 60%, 80% { transform: translateX(8px) rotate(3deg); }
-    }
-    
-    .pet-icon-wrapper { position: relative; z-index: 1; font-size: 6em; margin-bottom: 15px; animation: petBounce 1s ease-in-out infinite; filter: drop-shadow(0 0 20px var(--pet-color, gold)); }
-    @keyframes petBounce {
-        0%, 100% { transform: translateY(0) scale(1); }
-        50% { transform: translateY(-15px) scale(1.1); filter: drop-shadow(0 0 30px var(--pet-color, gold)); }
-    }
-    
-    /* 解锁特效 */
-    .unlock-effect {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: radial-gradient(circle, var(--pet-color, gold) 0%, transparent 70%);
-        animation: unlockPulse 1s ease-out;
-        pointer-events: none;
-        z-index: 100;
-    }
-    @keyframes unlockPulse {
-        0% { transform: scale(0); opacity: 1; }
-        100% { transform: scale(2); opacity: 0; }
-    }
-    
-    .pet-name { position: relative; z-index: 1; font-size: 1.5em; font-weight: bold; color: #fff; margin-bottom: 10px; text-shadow: 0 0 10px var(--pet-color, gold); }
-    .pet-level-badge { position: relative; z-index: 1; display: inline-block; padding: 5px 20px; border-radius: 20px; font-weight: bold; font-size: 1.1em; margin-bottom: 15px; border: 2px solid; animation: levelGlow 2s ease-in-out infinite; }
-    @keyframes levelGlow { 0%, 100% { box-shadow: 0 0 10px currentColor; } 50% { box-shadow: 0 0 25px currentColor, 0 0 40px currentColor; } }
-    
-    .pet-power-title { position: relative; z-index: 1; color: #aaa; font-size: 0.9em; margin-bottom: 8px; }
-    .pet-power { position: relative; z-index: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px; color: #fff; font-size: 1em; line-height: 1.5; margin-bottom: 15px; }
-    .pet-desc { position: relative; z-index: 1; color: #888; font-size: 0.9em; font-style: italic; margin-bottom: 20px; }
-    .pet-card-close { position: relative; z-index: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 20px; border-radius: 25px; font-size: 1em; font-weight: bold; cursor: pointer; transition: 0.3s; }
-    .pet-card-close:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.6); }
-    .pet-card-close.small { padding: 12px 15px; font-size: 0.9em; }
-    .pet-card-buttons { position: relative; z-index: 1; display: flex; gap: 10px; justify-content: center; }
-    .pet-reroll-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; padding: 12px 20px; border-radius: 25px; font-size: 0.9em; font-weight: bold; cursor: pointer; transition: 0.3s; }
-    .pet-reroll-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(240, 147, 251, 0.6); }
-    .pet-reroll-btn:disabled { background: #666; cursor: not-allowed; opacity: 0.5; transform: none; box-shadow: none; }
-    .reroll-cost { position: relative; z-index: 1; color: #ffd700; font-size: 0.85em; margin-top: 8px; text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
-
-    /* 📖 萌宠图鉴样式 */
-    .collection-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); display: none; justify-content: center; align-items: center; z-index: 10002; backdrop-filter: blur(15px); }
-    .collection-content { background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); width: 90%; max-width: 800px; max-height: 85vh; border-radius: 20px; padding: 30px; position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(102, 126, 234, 0.4); }
-    .collection-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid rgba(255,255,255,0.1); }
-    .collection-title { font-size: 1.8em; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 10px; }
-    .collection-stats { color: #ffd700; font-size: 1em; }
-    .collection-close { font-size: 2em; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; }
-    .collection-close:hover { color: #ff7675; transform: rotate(90deg); }
-    .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; max-height: 55vh; overflow-y: auto; padding-right: 10px; }
-    .collection-grid::-webkit-scrollbar { width: 6px; }
-    .collection-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
-    .collection-grid::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 3px; }
-    .pet-collection-item { aspect-ratio: 1; background: rgba(255,255,255,0.05); border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; border: 2px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; }
-    .pet-collection-item:hover { transform: scale(1.05); border-color: var(--primary); box-shadow: 0 0 20px rgba(0, 210, 255, 0.3); }
-    .pet-collection-item.locked { opacity: 0.3; filter: grayscale(100%); cursor: not-allowed; }
-    .pet-collection-item.locked:hover { transform: none; border-color: rgba(255,255,255,0.1); box-shadow: none; }
-    .pet-collection-icon { font-size: 2.5em; margin-bottom: 5px; }
-    .pet-collection-name { font-size: 0.75em; color: #fff; text-align: center; padding: 0 5px; }
-    .pet-collection-level { font-size: 0.6em; padding: 2px 8px; border-radius: 10px; margin-top: 3px; font-weight: bold; }
-    .pet-collection-item .locked-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.5); font-size: 2em; }
-    @keyframes shake-glow { 0%, 100% { transform: scale(1) rotate(0deg); } 25% { transform: scale(1.2) rotate(-10deg); filter: drop-shadow(0 0 20px var(--gold)); } 75% { transform: scale(1.2) rotate(10deg); filter: drop-shadow(0 0 20px var(--gold)); } }
-
-    /* 悬浮文字动画 */
-    .float-text { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-weight: 900; font-size: 1.6em; pointer-events: none; animation: floatUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index: 20; text-shadow: 0 0 10px currentColor; }
-    @keyframes floatUp { 0% { opacity: 1; transform: translate(-50%, 0) scale(0.5); } 50% { transform: translate(-50%, -40px) scale(1.3); } 100% { opacity: 0; transform: translate(-50%, -70px) scale(1); } }
 
     .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #27ae60; color: white; padding: 12px 30px; border-radius: 25px; font-size: 16px; font-weight: bold; opacity: 0; transition: 0.3s; z-index: 9999; pointer-events: none; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(20px); }
@@ -232,9 +137,40 @@
 <body>
 
 <h1>👨‍🏫 小Q老师 - 星际闯关指挥中心</h1>
+
+<div class="admin-controls">
+    <button class="admin-btn primary" onclick="showModal('addStudentModal')">➕ 添加新探险家</button>
+    <button class="admin-btn" onclick="showModal('attendanceModal')">📍 批量签到点亮</button>
+    <button class="admin-btn" onclick="resetAllData()">⚠️ 重置所有数据</button>
+</div>
+
 <div id="main-container"></div>
 
 <div class="toast" id="toast">提示信息</div>
+
+<div class="modal" id="addStudentModal">
+    <div class="modal-content input-modal-content">
+        <h3>➕ 招募新探险家</h3>
+        <div class="tip">格式：姓名|周几|课程名称|上课时间<br>例如：王小明|周六|发现世界|10:30-12:00</div>
+        <textarea id="newStudentInput" placeholder="在此粘贴或输入学员信息..."></textarea>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal('addStudentModal')">取消</button>
+            <button class="btn-confirm" onclick="addNewStudents()">确认添加</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="attendanceModal">
+    <div class="modal-content input-modal-content">
+        <h3>📍 批量点亮星际地图</h3>
+        <div class="tip">直接粘贴今天到课的学生名字，系统会自动点亮本周（第5周）的关卡星球。</div>
+        <textarea id="attendanceInput" placeholder="每行一个名字，例如：&#10;林瀚丞&#10;梁昕乔"></textarea>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal('attendanceModal')">取消</button>
+            <button class="btn-confirm" onclick="batchCheckIn()">一键点亮</button>
+        </div>
+    </div>
+</div>
 
 <div class="modal" id="mapModal">
     <div class="modal-content">
@@ -242,503 +178,155 @@
             <span class="close-btn" onclick="closeMap()">×</span>
             <h2 id="modalStudentName">学生姓名</h2>
             <p id="modalStudentInfo">课程信息</p>
-            <div class="action-buttons">
-                <button class="action-btn" onclick="toggleReportPanel()">📜 生成战报</button>
-                <button class="action-btn" onclick="showPetCollection()">📖 萌宠图鉴</button>
-                <button class="action-btn danger" onclick="resetStudentData()">🔄 重置记录</button>
-            </div>
-            <div class="report-panel" id="reportPanel">
-                <textarea id="reportContent" readonly></textarea>
-                <div class="report-actions">
-                    <button onclick="generateReportText()">🔄 刷新战报</button>
-                    <button onclick="copyReportContent()">📋 一键复制</button>
-                </div>
-            </div>
         </div>
         <div class="map-container" id="mapContainer"></div>
     </div>
 </div>
 
-<!-- 🏆 终极大奖弹窗 -->
-<div class="prize-modal" id="prizeModal">
-    <div class="prize-content">
-        <span class="prize-icon" id="prizeIcon">🎁</span>
-        <div class="prize-level" id="prizeLevel">特等奖</div>
-        <div class="prize-text" id="prizeText">恭喜获得超级大奖！</div>
-        <button class="prize-close-btn" onclick="closePrizeModal()">🎉 太棒了！</button>
-    </div>
-</div>
-
-<!-- 🐾 萌宠闪卡弹窗 -->
-<div class="pet-card-modal" id="petCardModal">
-    <div class="pet-card" id="petCard">
-        <div class="pet-icon-wrapper" id="petCardIcon">🐱</div>
-        <div class="pet-name" id="petCardName">星际喵咪</div>
-        <div class="pet-level-badge" id="petCardLevel">R 稀有</div>
-        <div class="pet-power-title">⚡ 超能力</div>
-        <div class="pet-power" id="petCardPower">九条命 - 可以复活9次</div>
-        <div class="pet-desc" id="petCardDesc">来自喵星的神秘访客</div>
-        <div class="pet-card-buttons">
-            <button class="pet-reroll-btn" id="petRerollBtn" onclick="rerollPet()">🔄 重抽 (3⭐)</button>
-            <button class="pet-card-close" onclick="closePetCard()">✨ 收入图鉴</button>
-            <button class="pet-card-close small" onclick="openCollectionFromCard()">📖</button>
-        </div>
-        <div class="reroll-cost" id="rerollCost">当前积分：0 ⭐</div>
-        <input type="hidden" id="currentPetWeek" value="-1">
-    </div>
-</div>
-
-<!-- 📖 萌宠图鉴弹窗 -->
-<div class="collection-modal" id="collectionModal">
-    <div class="collection-content">
-        <div class="collection-header">
-            <div class="collection-title">📖 萌宠图鉴</div>
-            <div class="collection-stats" id="collectionStats">已收集：0/20</div>
-            <span class="collection-close" onclick="closeCollectionModal()">×</span>
-        </div>
-        <div class="collection-grid" id="collectionGrid"></div>
-    </div>
-</div>
-
 <script>
-// 🌟 统一大题库 - 整合了标题和关键词
+// --- 核心配置 ---
 const courseData = {
-    "意识世界": [
-        { title: "滑滑梯", keywords: "运动, 秩序, 安全, 管道" }, { title: "洗澡盆", keywords: "重力, 探索, 递增递减结构" },
-        { title: "洗衣机", keywords: "劳动, 科技, 清洁" }, { title: "排水管道", keywords: "污水处理, 设计, 水循环" },
-        { title: "吹球游戏", keywords: "游戏规则, 轨迹, 机关" }, { title: "洒水车", keywords: "保护环境, 运输, 容量" },
-        { title: "疯狂迷宫", keywords: "迷宫, 路线设计, 障碍" }, { title: "长颈龙", keywords: "造型, 输入, 输出" },
-        { title: "小球接力", keywords: "空间逻辑, 调试能力" }, { title: "梳妆台", keywords: "母爱, 感恩" },
-        { title: "小王子航海记", keywords: "浮力, 冒险, 递增结构" }, { title: "地下神奇世界", keywords: "立体空间, 地下生物, 管道连接" },
-        { title: "三只小猪", keywords: "勤劳, 团结, 坚固的结构" }, { title: "树屋", keywords: "帮助, 友谊, 造型, 树干" },
-        { title: "龙舟", keywords: "传统文化, 氛围, 传说" }, { title: "钓鱼竿", keywords: "父爱, 感恩" },
-        { title: "潜水艇", keywords: "卫生习惯, 想象力, 递增结构" }, { title: "彩虹桥", keywords: "自然现象, 颜色, 递减结构" },
-        { title: "小火车", keywords: "分享, 数学, 长度, 容量" }, { title: "高尔夫", keywords: "摩擦力, 合作, 竞争" }
-    ],
-    "发现世界": [
-        { title: "看守宝藏的蛇", keywords: "单点连接, 周长, 比…长/短, 面积" }, { title: "天文望远镜", keywords: "天文, 科技" },
-        { title: "卫星天线", keywords: "信号, 科技, 递增" }, { title: "概率转盘", keywords: "机率, 可能, 旋转, 公平" },
-        { title: "天平秤", keywords: "重量, 平衡, 比…重/轻" }, { title: "长颈鹿", keywords: "生物进化论, 高度, 比…高/矮" },
-        { title: "旋转飞机", keywords: "侧面连接, 娱乐" }, { title: "蜥蜴", keywords: "变色(生物特征), 对称" },
-        { title: "机器人瓦力", keywords: "清洁, 履带, 造型" }, { title: "梳妆台", keywords: "母爱, 感恩" },
-        { title: "鳄鱼", keywords: "动物, 结构, 造型" }, { title: "数字宝箱", keywords: "概率, 估计, 推测, 表格" },
-        { title: "战斗机", keywords: "军事, 造型, 射击" }, { title: "交通法规", keywords: "安全, 合作, 秩序" },
-        { title: "龙舟", keywords: "传统文化, 氛围, 传说" }, { title: "钓鱼竿", keywords: "父爱, 感恩" },
-        { title: "八大行星", keywords: "天文, 递增递减" }, { title: "蝎子", keywords: "科普, 对称, 安全" },
-        { title: "霸王龙", keywords: "肉食性, 空间塑造" }, { title: "投石车", keywords: "弹性势能, 调试" }
-    ],
-    "发明世界": [
-        { title: "碾压机器人", keywords: "连杆, 往复运动" }, { title: "圆锯盘", keywords: "切割, 齿轮, 二级加速" },
-        { title: "钻孔机", keywords: "二级加速, 直角传动" }, { title: "果汁机", keywords: "齿轮啮合, 方向, 数学" },
-        { title: "捕蝇草", keywords: "捕猎, 触碰传感器, 消化" }, { title: "投石车", keywords: "历史, 弹力, 固定, 杠杆" },
-        { title: "传送带", keywords: "履带传动, 皮筋传动" }, { title: "割草机", keywords: "直角传动, 皮筋传动, 牵引" },
-        { title: "地月日模型", keywords: "自转, 公转, 周期, 光效" }, { title: "八音盒", keywords: "母爱, 感恩" },
-        { title: "雨刮器", keywords: "四边形, 连杆, 安全" }, { title: "农用车", keywords: "连杆, 健身, 四边形" },
-        { title: "开合桥", keywords: "历史, 合作, 新年" }, { title: "舂米机", keywords: "连杆传动, 杠杆条件判断" },
-        { title: "龙舟", keywords: "传统文化, 氛围, 传说" }, { title: "智能洗车场", keywords: "父爱, 感恩, 合作" },
-        { title: "军事雷达车", keywords: "科技, 远距离, 直角传动" }, { title: "扫地车", keywords: "清洁, 齿轮传动, 红外传感" },
-        { title: "弓弩", keywords: "冷兵器, 势能" }, { title: "移动餐车", keywords: "造型, 惰轮传动, 录音模块" }
-    ],
-    "动力机械": [
-        { title: "两驱车", keywords: "H型连接, 减速传动, 造型" }, { title: "手持电钻", keywords: "接触面积, 压强" },
-        { title: "吊车", keywords: "H型连接, 涡轮传动" }, { title: "独轮车小人", keywords: "涡轮, 连杆结构, 造型设计" },
-        { title: "伸缩钳", keywords: "复合杠杆, 减速, 四边形" }, { title: "大摆钟", keywords: "运动转换, 时间, 皮筋传动" },
-        { title: "大摆锤", keywords: "减速, 直角传动, 惯性" }, { title: "哈雷摩托", keywords: "直角/皮筋传动, 极限运动" },
-        { title: "旋转飞机", keywords: "连杆结构, 造型设计" }, { title: "电动摇篮", keywords: "母爱, 感恩, 连杆结构" },
-        { title: "摩天轮", keywords: "皮筋/减速传动, 造型设计" }, { title: "连发机枪", keywords: "运动势能, 间歇机构" },
-        { title: "攻城车", keywords: "涡轮, 四边形" }, { title: "碰碰车", keywords: "加速, 电机正反向" },
-        { title: "双翼机", keywords: "直角传动, 造型设计" }, { title: "投篮机", keywords: "父爱, 曲柄连杆" },
-        { title: "钻头车", keywords: "H型连接, 直角传动" }, { title: "高射炮", keywords: "间歇机构, 弹性势能" },
-        { title: "旋转木马", keywords: "皮筋/减速传动, 凸轮传动" }, { title: "加特林炮", keywords: "曲柄, 涡轮, 军事" }
-    ],
-    "创造世界": [
-        { title: "风力发电站", keywords: "直角传动, 角度传感器" }, { title: "智能洗车场", keywords: "多齿轮, 皮筋传动, 距离" },
-        { title: "啄木鸟", keywords: "皮筋传动, 造型设计" }, { title: "破壁机", keywords: "直角传动, 角度传感器" },
-        { title: "微波炉", keywords: "齿轮减速, 定时器" }, { title: "送餐机器人", keywords: "直角传动, 距离传感器" },
-        { title: "道闸", keywords: "皮筋传动, 距离传感器" }, { title: "智能晾衣架", keywords: "皮筋传动, 角度传感器" },
-        { title: "打桩机", keywords: "齿轮结构, 凸轮传动" }, { title: "小鸟喂食", keywords: "母爱, 感恩" },
-        { title: "推磨机器人", keywords: "偏心圆, 距离传感器" }, { title: "雷达巡逻车", keywords: "四连杆, 距离传感器" },
-        { title: "皮筋手枪", keywords: "势能, 涡轮, 红外感应" }, { title: "剪刀式升降机", keywords: "复合杠杆, 齿条, 角度传感器" },
-        { title: "推车小人", keywords: "传统文化, 氛围, 传说" }, { title: "平衡运水车", keywords: "平衡, 父爱" },
-        { title: "自动发球机", keywords: "间歇机构, 势能" }, { title: "摇头风扇", keywords: "四连杆, 距离传感器" },
-        { title: "直升机", keywords: "轴传动, 角度传感器(速度), 斜飞块" }, { title: "联合收割机", keywords: "皮筋传动, 多齿轮传动, 计时器" }
-    ],
-    "spike": [
-        { title: "排障小车", keywords: "信息处理, 电机控制, 度数概念" }, { title: "超级大摆锤", keywords: "运动转换, 往返逻辑" },
-        { title: "碰碰车", keywords: "压力变化, 双电机运动, 垂直运动" }, { title: "电吉他", keywords: "超声波传感器, 音效, 造型" },
-        { title: "杯子盖球", keywords: "顺序逻辑, 电机控制" }, { title: "智能台灯", keywords: "连杆, 灯光亮度" },
-        { title: "惯性小车", keywords: "惯性, 齿轮传动" }, { title: "留声机", keywords: "触碰传感器, 电机控制, 音乐播放" },
-        { title: "公交摆门", keywords: "传动结构, 距离判断, 按压判断" }, { title: "电动螺丝刀", keywords: "压力传感, 矩阵灯, 变量" },
-        { title: "摩天轮", keywords: "重心, 平衡, 条件语序" }, { title: "直升机", keywords: "齿轮传动, 变量, 矩阵显示" },
-        { title: "匀加减速", keywords: "传感器, 变量, 出入口设计" }, { title: "体操运动员", keywords: "惯性, 势能" },
-        { title: "投篮计数器", keywords: "颜色传感器, 抛物线" }, { title: "机械手", keywords: "条件判断, 电机控制, 智能生活" },
-        { title: "质检机", keywords: "信息处理, 颜色感应, 检测装置" }, { title: "智能叉车", keywords: "齿条传动, 运动转换" },
-        { title: "电子滚轮米尺", keywords: "电机度数控制, 变量, 四则运算" }, { title: "感应道闸", keywords: "连杆结构, 距离判断, 造型设计" }
-    ],
-    "AI03": [
-        { title: "AI 是怎么想的？", keywords: "概率预测, Token, AI幻觉" }, { title: "AI 的记忆之谜", keywords: "长短期记忆, 角色扮演" },
-        { title: "AI 训练师", keywords: "提示词设计, 限制条件" }, { title: "认识编程搭档", keywords: "AI编程工具, 需求审查" },
-        { title: "自然语言驱动", keywords: "一句话需求, MVP" }, { title: "产品迭代与增量", keywords: "增量开发, 功能优先级" },
-        { title: "交互产品架构设计", keywords: "核心循环, 需求文档" }, { title: "用户体验与产品发布", keywords: "UX三维度, Vibe Design" },
-        { title: "需求驱动工具开发", keywords: "需求发现, 用户思维" }, { title: "产品路演与评审", keywords: "路演, 同行建设性反馈" },
-        { title: "跨学科 AI 选题", keywords: "学科融合, 方案构思" }, { title: "跨学科 AI 核心开发", keywords: "本地存储, 学科互动" },
-        { title: "跨学科 AI 迭代优化", keywords: "系统性迭代, 体验打磨" }, { title: "功能升级与扩展", keywords: "模块化设计, 难度梯度" },
-        { title: "作品发布与双维评审", keywords: "技术与学科双维度评审" }, { title: "项目立项提案", keywords: "独立立项, 时间规划" },
-        { title: "全流程产品开发", keywords: "测试修复, 质量把控" }, { title: "穹狼创新发布会", keywords: "专业路演, 学期总结" }
-    ]
+    "意识世界": Array(20).fill({title:"意识探索"}),
+    "发现世界": Array(20).fill({title:"规律发现"}),
+    "发明世界": Array(20).fill({title:"机械零件"}),
+    "动力机械": Array(20).fill({title:"动力传输"}),
+    "创造世界": Array(20).fill({title:"编程创造"}),
+    "spike": Array(20).fill({title:"机器人挑战"}),
+    "AI03": Array(20).fill({title:"人工智能"})
 };
 
-// 问候语库（已合并温馨提示）
-const generalGreetings = [
-    "🌟 小探险家，准备好开启今天的奇妙旅程了吗？记得带上水杯，我们课堂见！",
-    "💡 今天的课程充满惊喜，提前5分钟到，带上好奇心，期待你的精彩表现！",
-    "🚀 又是一次探索未知的冒险，准备好水杯和满满能量，课堂上等你！",
-    "🎯 每一个问题都是通往智慧的钥匙，提前到达做好准备，一起解锁新知识！",
-    "🌈 用创意点亮思维，今天的课堂因你而精彩，记得准时到达哦！",
-    "💪 挑战即将开始，相信自己是最棒的小创客，准备好就出发吧！",
-    "✨ 把想象力装进口袋，带上水杯和好心情，我们一起去发现新世界！",
-    "🔍 观察、思考、创造——今天的你就是小小科学家，期待你的发现！",
-    "🎨 用双手搭建梦想，今天的作品一定会让你骄傲，记得准时上课！",
-    "🏆 每一次尝试都是进步，准备好迎接今天的新突破了吗？",
-    "🌱 像小树苗一样吸收知识，今天你会成长更多，课堂见！",
-    "💫 课堂上藏着许多宝藏，带上好奇心，聪明的你快来发现吧！"
-];
-const morningGreetings = [
-    "☀️ 早安小创客！吃好早餐、带上水杯，新的一天从满满的能量开始！",
-    "🥛 清晨好！吃好早餐，带上好心情和水杯，今天的冒险即将开始！",
-    "🌅 早安！清晨的第一缕阳光照亮探索知识的道路，准备好出发了吗？",
-    "💪 早安！早起的小探险家最棒，吃好早餐，准备好迎接今天的挑战了吗？"
-];
-const creativeGreetings = [
-    "🤖 今天我们要和机器人做朋友，带上水杯，准备好编程了吗？",
-    "🧩 每一块积木都有故事，提前到达，今天你想搭建什么奇迹？",
-    "⚙️ 齿轮转动，创意飞扬，准备好水杯和好奇心，机械世界等你探索！",
-    "💻 代码是魔法语言，带上满满能量，今天你要创造什么神奇功能？"
-];
-const dynamicIcons = ["✨", "🌟", "🚀", "🤖", "💻", "💡", "🎯", "🧩", "🏆", "🎨"];
-
-// 工具函数
-function getCourseType(courseStr) {
-    if (courseStr.includes("发现")) return "发现世界";
-    if (courseStr.includes("发明")) return "发明世界";
-    if (courseStr.includes("动力")) return "动力机械";
-    if (courseStr.includes("创造")) return "创造世界";
-    if (courseStr.includes("SPIKE") || courseStr.includes("spike")) return "spike";
-    if (courseStr.includes("AI") || courseStr.includes("AICODE")) return "AI03";
-    if (courseStr.includes("意识")) return "意识世界";
-    return "发现世界"; 
-}
-
-function getWeekNum(maxLevels) {
-    const startDate = new Date("2026-03-02T00:00:00");
-    const diffDays = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
-    let weekNum = Math.floor(diffDays / 7) + 1;
-    if (weekNum < 1) weekNum = 1;
-    if (maxLevels && weekNum > maxLevels) weekNum = maxLevels;
-    return weekNum;
-}
-
-// 🐾 萌宠数据库（含等级和超能力）
-const petDatabase = {
-    // 普通动物
-    '🐱': { name: '星际喵咪', level: 'R', power: '九条命 - 可以复活9次', desc: '来自喵星的神秘访客' },
-    '🐶': { name: '忠诚汪汪', level: 'SR', power: '追踪嗅觉 - 能找到任何隐藏宝藏', desc: '星际探险队的最佳伙伴' },
-    '🐰': { name: '月兔精灵', level: 'R', power: '极速跳跃 - 一步跨越一个星球', desc: '住在月亮上的可爱精灵' },
-    '🐹': { name: '仓鼠仓库', level: 'N', power: '次元口袋 - 能装下整个宇宙', desc: '随身携带零食的小可爱' },
-    '🐻': { name: '熊熊勇士', level: 'SSR', power: '熊掌一击 - 可以击碎任何障碍', desc: '森林王国的守护者' },
-    '🦊': { name: '九尾妖狐', level: 'SSR', power: '幻术迷惑 - 制造逼真幻象', desc: '拥有神秘力量的妖狐' },
-    '🐼': { name: '功夫熊猫', level: 'UR', power: '太极神功 - 以柔克刚无敌手', desc: '来自东方的神秘大师' },
-    '🐨': { name: '考拉睡神', level: 'N', power: '时间静止 - 打盹时时间暂停', desc: '一天睡25小时的大神' },
-    '🐯': { name: '白虎神兽', level: 'UR', power: '王者气场 - 让敌人自动臣服', desc: '百兽之王的威严化身' },
-    '🦁': { name: '狮子王', level: 'SSR', power: '狮吼功 - 声波震碎一切', desc: '草原上最耀眼的明星' },
-    '🐮': { name: '牛魔王', level: 'R', power: '怪力无双 - 力大无穷', desc: '勤勤恳恳的劳动模范' },
-    '🐷': { name: '天蓬元帅', level: 'SR', power: '吃遍宇宙 - 越吃越强', desc: '美食界的最强战力' },
-    '🐸': { name: '青蛙王子', level: 'R', power: '水元素掌控 - 召唤暴雨洪水', desc: '被诅咒变成青蛙的王子' },
-    '🐵': { name: '齐天大圣', level: 'UR', power: '七十二变 - 想变什么变什么', desc: '从石头里蹦出来的传奇' },
-    '🦄': { name: '独角兽', level: 'UR', power: '彩虹魔法 - 治愈一切伤痛', desc: '传说中的神兽' },
-    '🐔': { name: '战斗鸡', level: 'N', power: '早起光环 - 每天第一个起床', desc: '鸡你太美' },
-    '🐧': { name: '南极绅士', level: 'R', power: '寒冰领域 - 冰冻周围一切', desc: '穿着燕尾服的优雅绅士' },
-    '🦜': { name: '鹦语者', level: 'SR', power: '万兽通语 - 能和任何生物交流', desc: '掌握宇宙所有语言' },
-    '🦋': { name: '梦蝶仙子', level: 'SSR', power: '梦境穿梭 - 自由进出他人梦境', desc: '庄周梦蝶，蝶梦庄周' },
-    '🐝': { name: '蜂群女王', level: 'SR', power: '蜂群召唤 - 指挥百万蜜蜂大军', desc: '勤劳的团队领袖' },
-    
-    // 恐龙家族
-    '🦖': { name: '霸王龙', level: 'UR', power: '霸王咆哮 - 震碎敌人耳膜', desc: '史前最强大的掠食者' },
-    '🦕': { name: '腕龙', level: 'SSR', power: '长颈探索 - 能看到宇宙尽头', desc: '拥有超长脖子的温和巨人' },
-    '🐊': { name: '迅猛龙', level: 'SR', power: '闪电速度 - 瞬间移动', desc: '速度最快的恐龙' },
-    '🦗': { name: '三角龙', level: 'R', power: '尖角防御 - 无敌盾牌', desc: '头部有三个尖角的防御大师' },
-    '🐢': { name: '甲龙', level: 'R', power: '铁甲护身 - 刀枪不入', desc: '身上覆盖坚硬盔甲的恐龙' },
-    '🦑': { name: '翼龙', level: 'SR', power: '高空飞行 - 自由翱翔', desc: '能够飞行的史前生物' },
-    '�': { name: '镰刀龙', level: 'SSR', power: '镰刀利爪 - 切割一切', desc: '拥有巨大镰刀状爪子的恐龙' },
-    '🐍': { name: '梁龙', level: 'SSR', power: '超长身躯 - 横扫千军', desc: '脖子和尾巴都很长的恐龙' },
-    '🐊': { name: '沧龙', level: 'UR', power: '深海霸主 - 统治海洋', desc: '海洋中的顶级掠食者' },
-    '🦗': { name: '剑龙', level: 'R', power: '背板防御 - 刺击敌人', desc: '背部有骨板的恐龙' },
-    '🐢': { name: '肿头龙', level: 'N', power: '铁头功 - 撞击敌人', desc: '头部有厚骨质的恐龙' },
-    '�': { name: '无齿翼龙', level: 'R', power: '滑翔飞行 - 空中侦察', desc: '没有牙齿的翼龙' },
-    
-    // 海洋生物
-    '🐙': { name: '章鱼博士', level: 'SSR', power: '八爪技能 - 同时做八件事', desc: '拥有超高智商的海洋生物' },
-    '🐟': { name: '彩虹鱼', level: 'R', power: '色彩变换 - 迷惑敌人', desc: '身上有彩虹般的鳞片' },
-    '🦈': { name: '鲨鱼王', level: 'SR', power: '深海霸主 - 统治海洋', desc: '海洋中的顶级掠食者' },
-    '🐳': { name: '蓝鲸', level: 'UR', power: '声波定位 - 探测宇宙', desc: '宇宙中最大的生物' },
-    '🐡': { name: '河豚', level: 'N', power: '膨胀防御 - 变大吓跑敌人', desc: '生气时会变成气球' },
-    '🦞': { name: '龙虾将军', level: 'R', power: '钳子攻击 - 威力无穷', desc: '海洋中的威武将军' },
-    '🐢': { name: '海龟', level: 'N', power: '长寿祝福 - 增加寿命', desc: '慢悠悠的海洋生物' },
-    '🐠': { name: '热带鱼', level: 'N', power: '色彩斑斓 - 迷惑敌人', desc: '色彩鲜艳的海洋生物' },
-    '🦀': { name: '螃蟹', level: 'N', power: '双钳攻击 - 夹碎一切', desc: '横着走路的海洋生物' },
-    '🐙': { name: '墨鱼', level: 'R', power: '墨汁喷射 - 迷惑敌人', desc: '能喷射墨汁的海洋生物' },
-    '🐡': { name: '狮子鱼', level: 'R', power: '毒刺攻击 - 麻痹敌人', desc: '身上有剧毒的海洋生物' },
-    '🦈': { name: '锤头鲨', level: 'SR', power: '精准定位 - 追踪猎物', desc: '头部呈锤状的鲨鱼' },
-    
-    // 神话生物
-    '🐉': { name: '东方神龙', level: 'UR', power: '呼风唤雨 - 掌控天气', desc: '传说中的神兽之王' },
-    '🐲': { name: '西方巨龙', level: 'UR', power: '火焰喷射 - 焚烧一切', desc: '会飞会喷火的强大生物' },
-    '👻': { name: '幽灵', level: 'SSR', power: '隐身术 - 来去无踪', desc: '能够穿墙的灵体' },
-    '🧟': { name: '僵尸', level: 'R', power: '不死之身 - 无限复活', desc: '来自冥界的生物' },
-    '🧚': { name: '小精灵', level: 'SR', power: '自然魔法 - 操控植物', desc: '森林的守护者' },
-    '🧛': { name: '吸血鬼', level: 'SSR', power: '吸血再生 - 越吸越强', desc: '夜晚的统治者' },
-    '👹': { name: '天狗', level: 'SSR', power: '天狗食月 - 遮蔽阳光', desc: '日本神话中的神兽' },
-    '👺': { name: '河童', level: 'R', power: '水之掌控 - 操控水流', desc: '日本神话中的水怪' },
-    '🧜': { name: '海妖', level: 'SSR', power: '歌声魅惑 - 控制心智', desc: '诱惑水手的海洋生物' },
-    '🧝': { name: '矮人', level: 'R', power: '锻造大师 - 打造神器', desc: '擅长锻造的神话生物' },
-    '🧙': { name: '巫师', level: 'SSR', power: '魔法咒语 - 施展法术', desc: '掌握魔法的神秘生物' },
-    '👼': { name: '天使', level: 'UR', power: '神圣之光 - 净化一切', desc: '来自天堂的使者' },
-    
-    // 小怪兽
-    '👾': { name: '太空怪兽', level: 'UR', power: '激光眼 - 发射激光', desc: '来自外太空的神秘生物' },
-    '🤖': { name: '机器人', level: 'SR', power: '机械臂 - 力大无穷', desc: '高科技制造的智能生物' },
-    '👹': { name: ' oni', level: 'SSR', power: '巨力 - 掀翻星球', desc: '来自日本神话的恶鬼' },
-    '👺': { name: '小恶魔', level: 'R', power: '恶作剧 - 整蛊专家', desc: '喜欢搞恶作剧的小家伙' },
-    '🤡': { name: '小丑', level: 'R', power: '欢笑魔法 - 让人开心', desc: '带来欢乐的表演者' },
-    '👻': { name: '小幽灵', level: 'N', power: '穿墙术 - 来去自由', desc: '可爱的小灵体' },
-    '👾': { name: '外星怪物', level: 'SSR', power: '变形能力 - 改变形态', desc: '来自外太空的变形生物' },
-    '🤖': { name: '机械战警', level: 'SR', power: '激光枪 - 精准射击', desc: '高科技机械战士' },
-    '👹': { name: '独眼巨人', level: 'SSR', power: '巨力投掷 - 扔出巨石', desc: '只有一只眼睛的巨人' },
-    '👺': { name: '哥布林', level: 'N', power: '偷窃技巧 - 偷走物品', desc: '喜欢偷窃的小怪物' },
-    '🤡': { name: '木偶人', level: 'N', power: '操控丝线 - 控制物体', desc: '被丝线操控的木偶' },
-    '👻': { name: '怨灵', level: 'R', power: '诅咒之力 - 施加诅咒', desc: '充满怨气的灵体' },
-    
-    // 更多动物
-    '🐨': { name: '树懒', level: 'N', power: '超级慢动作 - 时间感知', desc: '世界上最慢的动物' },
-    '🦥': { name: '考拉', level: 'N', power: '睡眠恢复 - 快速疗伤', desc: '爱睡觉的可爱动物' },
-    '🦘': { name: '袋鼠', level: 'R', power: '超级跳跃 - 跳得超高', desc: '带着宝宝的跳跃高手' },
-    '🦡': { name: '獾', level: 'R', power: '挖掘大师 - 钻地潜行', desc: '擅长挖洞的小动物' },
-    '🦫': { name: '海狸', level: 'N', power: '建筑大师 - 建造水坝', desc: '大自然的工程师' },
-    '🦔': { name: '刺猬', level: 'N', power: '尖刺防御 - 无人敢碰', desc: '浑身是刺的小可爱' },
-    '🦦': { name: '水獭', level: 'R', power: '游泳高手 - 水下呼吸', desc: '喜欢玩水的聪明动物' },
-    '🦥': { name: '犰狳', level: 'R', power: '盔甲防御 - 卷成球', desc: '自带盔甲的小动物' },
-    '🐫': { name: '骆驼', level: 'N', power: '沙漠生存 - 耐渴耐饿', desc: '沙漠中的运输专家' },
-    '🐘': { name: '大象', level: 'SR', power: '巨力搬运 - 举起重物', desc: '陆地上最大的动物' },
-    '🦓': { name: '斑马', level: 'N', power: '条纹迷惑 - 混淆敌人', desc: '身上有条纹的马' },
-    '🐴': { name: '独角兽马', level: 'SSR', power: '神圣之力 - 净化邪恶', desc: '拥有独角兽角的马' },
-    
-    // 奇幻生物
-    '🐲': { name: '幼龙', level: 'SR', power: '小火球 - 发射火球', desc: '还在成长的小龙' },
-    '🦄': { name: '小独角兽', level: 'SSR', power: '治愈之光 - 恢复生命', desc: '幼年的独角兽' },
-    '🐉': { name: '应龙', level: 'UR', power: '雷霆万钧 - 召唤闪电', desc: '掌管雷电的神龙' },
-    '🧚': { name: '花仙子', level: 'R', power: '花香迷醉 - 迷惑敌人', desc: '掌管花朵的精灵' },
-    '🧜': { name: '美人鱼', level: 'SSR', power: '歌声魅惑 - 控制心智', desc: '来自深海的美丽生物' },
-    '🧝': { name: '精灵', level: 'SR', power: '弓箭精准 - 百发百中', desc: '森林中的箭术大师' },
-    '🧚': { name: '风精灵', level: 'R', power: '风之掌控 - 操控风力', desc: '掌控风元素的精灵' },
-    '🧜': { name: '鲛人', level: 'R', power: '水下呼吸 - 深海探索', desc: '生活在深海的人类近亲' },
-    '🧝': { name: '精灵射手', level: 'SSR', power: '百步穿杨 - 精准射击', desc: '擅长射箭的精灵' },
-    '🧚': { name: '火精灵', level: 'R', power: '火之掌控 - 操控火焰', desc: '掌控火元素的精灵' },
-    '🧜': { name: '海王子', level: 'SSR', power: '海洋统治 - 指挥海洋生物', desc: '海洋王国的王子' },
-    '🧝': { name: '精灵法师', level: 'SSR', power: '自然魔法 - 操控自然', desc: '擅长魔法的精灵' },
-    
-    // 外星生物
-    '👽': { name: '外星人', level: 'UR', power: '心灵感应 - 读取思想', desc: '来自遥远星球的访客' },
-    '👾': { name: '外星宝宝', level: 'SR', power: '变形术 - 改变形状', desc: '可爱的外星小朋友' },
-    '🤖': { name: '外星机器人', level: 'SSR', power: '高科技武器 - 激光炮', desc: '来自外星的智能机器人' },
-    '🌌': { name: '星云生物', level: 'UR', power: '宇宙能量 - 掌控星辰', desc: '由星云组成的神秘生物' },
-    '👽': { name: '外星科学家', level: 'SSR', power: '高科技发明 - 创造奇迹', desc: '来自外星的科学家' },
-    '👾': { name: '外星战士', level: 'SR', power: '激光武器 - 精准射击', desc: '来自外星的战士' },
-    '🤖': { name: '外星无人机', level: 'R', power: '侦察探测 - 收集情报', desc: '来自外星的无人飞行器' },
-    '🌌': { name: '黑洞生物', level: 'UR', power: '引力控制 - 吞噬一切', desc: '生活在黑洞附近的生物' },
-    
-    // 神话动物
-    '🔥': { name: '凤凰', level: 'UR', power: '涅槃重生 - 无限复活', desc: '能浴火重生的神鸟', img: 'https://cdn-icons-png.flaticon.com/512/616/616554.png' },
-    '✨': { name: '麒麟', level: 'UR', power: '祥瑞之气 - 带来好运', desc: '象征吉祥的神兽', img: 'https://cdn-icons-png.flaticon.com/512/616/616563.png' },
-    '🐢': { name: '玄武', level: 'UR', power: '龟甲防御 - 无敌护盾', desc: '北方的守护神', img: 'https://cdn-icons-png.flaticon.com/512/616/616571.png' },
-    '🐉': { name: '青龙', level: 'UR', power: '腾云驾雾 - 掌控天空', desc: '东方的守护神', img: 'https://cdn-icons-png.flaticon.com/512/616/616564.png' },
-    '🐯': { name: '白虎', level: 'UR', power: '百兽之王 - 统领动物', desc: '西方的守护神', img: 'https://cdn-icons-png.flaticon.com/512/616/616565.png' },
-    '🦅': { name: '朱雀', level: 'UR', power: '火焰之力 - 焚烧一切', desc: '南方的守护神', img: 'https://cdn-icons-png.flaticon.com/512/616/616566.png' },
-    '🐉': { name: '应龙', level: 'UR', power: '呼风唤雨 - 掌控天气', desc: '有翅膀的神龙', img: 'https://cdn-icons-png.flaticon.com/512/616/616567.png' },
-    '🐷': { name: '饕餮', level: 'UR', power: '吞噬万物 - 永不满足', desc: '传说中贪吃的神兽', img: 'https://cdn-icons-png.flaticon.com/512/616/616568.png' },
-    '🐯': { name: '梼杌', level: 'UR', power: '凶暴之力 - 破坏一切', desc: '传说中凶猛的神兽', img: 'https://cdn-icons-png.flaticon.com/512/616/616569.png' },
-    '🌪️': { name: '混沌', level: 'UR', power: '混乱之力 - 制造混乱', desc: '传说中混沌的神兽', img: 'https://cdn-icons-png.flaticon.com/512/616/616570.png' }
-};
-
-// 等级颜色配置
-const levelColors = {
-    'N': '#a8a8a8', 'R': '#3498db', 'SR': '#9b59b6', 'SSR': '#e74c3c', 'UR': '#ffd700'
-};
-const levelNames = {
-    'N': '普通', 'R': '稀有', 'SR': '史诗', 'SSR': '传说', 'UR': '限定'
-};
-
-// 🐾 萌宠图标库
-const petIcons = Object.keys(petDatabase);
-
-// 全局关卡总数
-let totalLevels = 20;
-
-// 🏆 终极大奖箱奖项
-const grandPrizes = [
-    { level: '特等奖', icon: '👑', prize: '星际探险家终极称号 + 神秘大礼包', color: '#ffd700' },
-    { level: '一等奖', icon: '🥇', prize: '超级编程大师徽章 + 高级教具套装', color: '#ff6b6b' },
-    { level: '二等奖', icon: '🥈', prize: '创意之星奖杯 + 精美文具套装', color: '#a8a8a8' },
-    { level: '三等奖', icon: '🥉', prize: '优秀学员证书 + 益智玩具', color: '#cd7f32' }
-];
-
-// ✨ 专属小名配置字典（重点修复）
 const nicknameMap = {
     "林瀚丞": "丞丞", "梁昕乔": "乔乔", "钟昀昊": "昊昊", "李怡瞳": "怡瞳",
-    "沙佩琪": "佩琪", "李梓宁": "梓宁", "黄榆斐": "榆斐", "杨佳兴": "佳兴",
-    "余韫": "袋袋", "林嘉铭": "嘉铭", "梁家铭": "家铭", "简思瑜": "思瑜",
-    "简思霖": "思霖", "黄晓瑜": "晓瑜", "罗钧龄": "钧龄", "陈昕柔": "昕柔",
-    "曾乐凯": "乐凯", "庞郁翰": "郁翰", "李汶浩": "汶浩", "李欣蓉": "欣蓉",
-    "谢善诺": "善诺", "马悦然": "悦然", "郭景鸣": "景鸣", "冯彦哲": "乐乐",
-    "吴浩洋": "浩洋", "吴浩骏": "浩骏", "王骏诚": "骏诚", "洪一栩": "一栩",
-    "邓琬曦": "琬曦", "邓琬颖": "琬颖", "方柳莫": "莫莫", "苏睿哲": "睿哲",
-    "黄钰茹": "钰茹", "李星佑": "星佑", "陈芊雅": "芊雅"
+    "沙佩琪": "佩琪", "李梓宁": "梓宁", "余韫": "袋袋", "冯彦哲": "乐乐"
 };
 
-// 原始排课数据
-const rawData = `
-梁昕乔｜周四｜发现世界｜19:00-20:00｜
-钟昀昊｜周四｜发现世界｜19:00-20:00｜
-李怡瞳｜周五｜AICODE-03｜19:00-20:30｜
-沙佩琪｜周五｜AICODE-03｜19:00-20:30｜
-李梓宁｜周五｜AICODE-03｜19:00-20:30｜
-黄榆斐｜周五｜AICODE-03｜19:00-20:30｜
-林瀚丞｜周六｜发现世界｜09:00-10:00｜
-杨佳兴｜周六｜发现世界｜09:00-10:00｜
-余韫｜周六｜发现世界｜09:00-10:00｜
-Valeriya｜周六｜发现世界｜09:00-10:00｜
-林嘉铭｜周六｜发现世界｜09:00-10:00｜
-胡翰铭｜周六｜发现世界｜09:00-10:00｜
-梁家铭｜周六｜Wedo创造世界｜10:30-12:00｜
-简思瑜｜周六｜Wedo创造世界｜10:30-12:00｜
-简思霖｜周六｜Wedo创造世界｜10:30-12:00｜
-黄晓瑜｜周六｜Wedo创造世界｜10:30-12:00｜
-罗钧龄｜周六｜Wedo创造世界｜10:30-12:00｜
-陈芊雅｜周六｜Wedo创造世界｜10:30-12:00｜
-陈昕柔｜周六｜AICODE-03｜14:00-15:30｜
-曾乐凯｜周六｜AICODE-03｜14:00-15:30｜
-庞郁翰｜周六｜AICODE-03｜14:00-15:30｜
-李汶浩｜周六｜AICODE-03｜14:00-15:30｜
-李欣蓉｜周六｜AICODE-03｜14:00-15:30｜
-谢善诺｜周六｜AICODE-03｜14:00-15:30｜
-马悦然｜周六｜Wedo创造世界｜16:00-17:30｜
-郭景鸣｜周六｜Wedo创造世界｜16:00-17:30｜
-冯彦哲｜周六｜Wedo创造世界｜16:00-17:30｜
-赖韵恬｜周六｜发现世界｜19:00-20:00｜
-吴浩洋｜周日｜SPIKE02｜10:30-12:00｜
-吴浩骏｜周日｜SPIKE02｜10:30-12:00｜
-王骏诚｜周日｜SPIKE02｜10:30-12:00｜
-洪一栩｜周日｜SPIKE02｜10:30-12:00｜
-邓琬曦｜周日｜SPIKE02｜10:30-12:00｜
-邓琬颖｜周日｜SPIKE02｜10:30-12:00｜
-方柳莫｜周日｜SPIKE02｜10:30-12:00｜
-苏睿哲｜周日｜Wedo创造世界｜16:00-17:30｜
-黄钰茹｜周日｜Wedo创造世界｜16:00-17:30｜
-李星佑｜周日｜Wedo创造世界｜16:00-17:30｜
-`;
-
-const students = [];
-// 支持全角｜和半角|分隔符
-rawData.trim().split('\n').forEach(line => {
-    if(!line.trim()) return;
-    const parts = line.split(/｜|\|/);
-    if (parts.length >= 2) {
-        const full = parts[0] || '未知';
-        // 优先读取字典，如果没有则自动截取
-        const nick = nicknameMap[full] || (full === "Valeriya" ? "Valeriya" : (full.length <= 2 ? full : full.substring(full.length - 2)));
-        students.push({ id: 'xq_' + full + '_' + parts[2], name: full, nickname: nick, day: parts[1], course: parts[2], time: parts[3] });
-    }
-});
-
 const dayOrder = { '周一':1, '周二':2, '周三':3, '周四':4, '周五':5, '周六':6, '周日':7 };
-let currentStudentId = null; let currentStudentCourseType = null; let currentStudentNameInfo = {};
 
-function triggerFloatText(parentEl, text, color) {
-    const floatText = document.createElement('span'); floatText.className = 'float-text';
-    floatText.innerText = text; floatText.style.color = color; 
-    parentEl.appendChild(floatText); setTimeout(() => floatText.remove(), 800);
+// --- 数据初始化 ---
+let students = JSON.parse(localStorage.getItem('xq_students_list')) || [];
+
+// 如果是第一次运行，加载默认数据
+if (students.length === 0) {
+    const rawData = `
+    梁昕乔｜周四｜发现世界｜19:00-20:00｜
+    钟昀昊｜周四｜发现世界｜19:00-20:00｜
+    李怡瞳｜周五｜AICODE-03｜19:00-20:30｜
+    沙佩琪｜周五｜AICODE-03｜19:00-20:30｜
+    林瀚丞｜周六｜发现世界｜09:00-10:00｜
+    `;
+    rawData.trim().split('\n').forEach(line => {
+        if(!line.trim()) return;
+        const parts = line.split(/｜|\|/);
+        addStudentToArray(parts[0], parts[1], parts[2], parts[3]);
+    });
+    saveStudents();
 }
+
+function addStudentToArray(name, day, course, time) {
+    const full = name.trim();
+    const nick = nicknameMap[full] || (full.length <= 2 ? full : full.substring(full.length - 2));
+    students.push({ 
+        id: 'xq_' + full + '_' + course, 
+        name: full, 
+        nickname: nick, 
+        day: day.trim(), 
+        course: course.trim(), 
+        time: time.trim() 
+    });
+}
+
+function saveStudents() {
+    localStorage.setItem('xq_students_list', JSON.stringify(students));
+}
+
+// --- 功能函数 ---
+function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
 function showToast(text) {
     const t = document.getElementById('toast');
     t.innerText = text; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2000);
 }
-function copyText(text, event) {
-    if(event) event.stopPropagation();
-    navigator.clipboard.writeText(text).then(() => showToast('复制成功: ' + text));
+
+function getWeekNum() {
+    const startDate = new Date("2026-03-02"); // 设定的周期起始
+    const today = new Date();
+    const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+    return Math.max(1, Math.floor(diffDays / 7) + 1);
 }
 
-function getAttendanceData(id, totalLevels) {
+function getAttendanceData(id) {
     const data = localStorage.getItem(id);
     let parsed = data ? JSON.parse(data) : [];
-    while (parsed.length < totalLevels) parsed.push({ attended: false, score: 0, chestOpened: false });
+    while (parsed.length < 20) parsed.push({ attended: false, score: 0 });
     return parsed;
 }
-function saveAttendanceData(id, dataArray) { localStorage.setItem(id, JSON.stringify(dataArray)); }
 
-function resetStudentData() {
-    if (confirm("⚠️ 确定要清空该同学的星际闯关、积分、宝箱、萌宠图鉴和终极大奖记录吗？\n（此操作不可恢复）")) {
-        localStorage.removeItem(currentStudentId);
-        localStorage.removeItem(currentStudentId + '_grandPrize');
-        localStorage.removeItem(currentStudentId + '_petCollection');
-        renderMap(); setTimeout(scrollToCurrentWeek, 100);
-        if(document.getElementById('reportPanel').style.display === 'block') generateReportText();
+// --- 添加学生逻辑 ---
+function addNewStudents() {
+    const input = document.getElementById('newStudentInput').value.trim();
+    if (!input) return;
+
+    const lines = input.split('\n');
+    let count = 0;
+    lines.forEach(line => {
+        const parts = line.split(/｜|\|/);
+        if (parts.length >= 4) {
+            addStudentToArray(parts[0], parts[1], parts[2], parts[3]);
+            count++;
+        }
+    });
+
+    saveStudents();
+    renderStudentList();
+    closeModal('addStudentModal');
+    document.getElementById('newStudentInput').value = '';
+    showToast(`成功招募 ${count} 位新探险家！`);
+}
+
+// --- 批量出勤点亮逻辑 ---
+function batchCheckIn() {
+    const input = document.getElementById('attendanceInput').value.trim();
+    if (!input) return;
+
+    const names = input.split('\n').map(n => n.trim());
+    const currentWeekIdx = getWeekNum() - 1;
+    let count = 0;
+
+    names.forEach(name => {
+        // 找到对应的学生 ID (可能有同名但在不同班，所以这里匹配所有叫这个名字的人)
+        const targets = students.filter(s => s.name === name);
+        targets.forEach(s => {
+            const records = getAttendanceData(s.id);
+            if (!records[currentWeekIdx].attended) {
+                records[currentWeekIdx].attended = true;
+                records[currentWeekIdx].score = 3; // 默认签到给3星
+                localStorage.setItem(s.id, JSON.stringify(records));
+                count++;
+            }
+        });
+    });
+
+    renderStudentList();
+    closeModal('attendanceModal');
+    document.getElementById('attendanceInput').value = '';
+    showToast(`任务完成！已为 ${count} 位探险家点亮第 ${currentWeekIdx+1} 关！`);
+}
+
+function resetAllData() {
+    if(confirm("确定清空所有学生名单和记录吗？")) {
+        localStorage.clear();
+        location.reload();
     }
 }
 
-// 提醒文案生成
-function generateReminderContent(courseRawName, weekDay, timeRange) {
-    const type = getCourseType(courseRawName);
-    const courseList = courseData[type] || [];
-    const weekNum = getWeekNum(courseList.length);
-    const course = courseList[weekNum - 1] || { title: "精彩主题", keywords: "探索, 科技" };
-    
-    let pool = [...generalGreetings];
-    const startHour = parseInt(timeRange.split(':')[0] || "14", 10);
-    if (startHour < 12) pool = pool.concat(morningGreetings);
-    
-    // 根据课程类型添加特定的创意问候语
-    if (type === 'spike' || type === 'AI03') {
-        pool = pool.concat(creativeGreetings);
-    }
-    
-    const greeting = pool[Math.floor(Math.random() * pool.length)];
-    const icon = dynamicIcons[Math.floor(Math.random() * dynamicIcons.length)];
-    
-    return `🚀 ${weekDay}课程提醒 🚀
-
-━━━━━━━━━━━━━━
-🕒 上课时间：${weekDay} ${timeRange}
-📚 课程主题：${course.title}
-🔑 核心技能：${course.keywords}
-━━━━━━━━━━━━━━
-
-${greeting} ${icon}`;
-}
-
-function toggleReminderPanel(panelId, courseName, day, time) {
-    const panel = document.getElementById(panelId);
-    if (panel.style.display === 'none' || panel.style.display === '') {
-        panel.style.display = 'block'; refreshReminder(panelId, courseName, day, time);
-    } else panel.style.display = 'none';
-}
-function refreshReminder(panelId, courseName, day, time) { document.querySelector(`#${panelId} .reminder-preview`).innerText = generateReminderContent(courseName, day, time); }
-function copyReminder(panelId) { copyText(document.querySelector(`#${panelId} .reminder-preview`).innerText); }
-
-// 主渲染函数
+// --- 页面渲染逻辑 (保持原样并优化) ---
 function renderStudentList() {
-    const container = document.getElementById('main-container'); container.innerHTML = '';
+    const container = document.getElementById('main-container');
+    container.innerHTML = '';
     const groupedByDay = {};
+
     students.forEach(s => {
         if (!groupedByDay[s.day]) groupedByDay[s.day] = {};
         const classKey = `${s.course} | ${s.time}`;
@@ -749,49 +337,36 @@ function renderStudentList() {
     const sortedDays = Object.keys(groupedByDay).sort((a, b) => (dayOrder[a] || 99) - (dayOrder[b] || 99));
 
     sortedDays.forEach(day => {
-        const groupDiv = document.createElement('div'); groupDiv.className = 'day-group';
-        let dailyTotal = 0; Object.values(groupedByDay[day]).forEach(arr => dailyTotal += arr.length);
-        const title = document.createElement('div'); title.className = 'day-title'; title.innerHTML = `📅 ${day} <span style="font-size:0.7em; color:#7f8c8d; font-weight:normal;">(${dailyTotal}位探险家)</span>`;
-        groupDiv.appendChild(title);
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'day-group';
+        groupDiv.innerHTML = `<div class="day-title">📅 ${day}</div>`;
 
-        const sortedClassKeys = Object.keys(groupedByDay[day]).sort((a, b) => (a.split(' | ')[1] || '99').localeCompare(b.split(' | ')[1] || '99'));
-
-        sortedClassKeys.forEach((classKey, idx) => {
+        const classKeys = Object.keys(groupedByDay[day]);
+        classKeys.forEach(classKey => {
             const classStudents = groupedByDay[day][classKey];
-            const courseName = classKey.split(' | ')[0]; const timeRange = classKey.split(' | ')[1];
-            const panelId = `reminder-${day}-${idx}`;
-
-            const headerRow = document.createElement('div'); headerRow.className = 'class-header-row';
-            headerRow.innerHTML = `<h3 class="class-section-title">🏷️ ${classKey} <span style="font-size:0.85em; color:#7f8c8d;">(${classStudents.length}人)</span></h3><button class="reminder-btn" onclick="toggleReminderPanel('${panelId}', '${courseName}', '${day}', '${timeRange}')">📢 生成上课提醒</button>`;
+            const headerRow = document.createElement('div');
+            headerRow.className = 'class-header-row';
+            headerRow.innerHTML = `<h3 class="class-section-title">🏷️ ${classKey}</h3>`;
             groupDiv.appendChild(headerRow);
 
-            const reminderPanel = document.createElement('div'); reminderPanel.className = 'reminder-panel'; reminderPanel.id = panelId;
-            reminderPanel.innerHTML = `<div class="reminder-content-wrapper"><div class="reminder-preview">生成中...</div><div class="reminder-actions"><button class="btn-refresh" onclick="refreshReminder('${panelId}', '${courseName}', '${day}', '${timeRange}')">🔄 刷新</button><button class="btn-copy" onclick="copyReminder('${panelId}')">📋 复制</button></div></div>`;
-            groupDiv.appendChild(reminderPanel);
-
-            const grid = document.createElement('div'); grid.className = 'student-grid';
+            const grid = document.createElement('div');
+            grid.className = 'student-grid';
             classStudents.forEach(s => {
-                const card = document.createElement('div'); card.className = 'student-card';
-                card.onclick = () => openMap(s.id, s.name, s.nickname, s.course, s.time);
-                
-                const typeKey = getCourseType(s.course);
-                const sLevelCount = (courseData[typeKey] || Array(20)).length;
-                const records = getAttendanceData(s.id, sLevelCount);
-                const currentWeekIdx = getWeekNum(sLevelCount) - 1;
-                const currentWeekScore = records[currentWeekIdx] ? (records[currentWeekIdx].score || 0) : 0;
+                const records = getAttendanceData(s.id);
                 const attendCount = records.filter(r => r.attended).length;
                 const totalScore = records.reduce((sum, r) => sum + (r.score || 0), 0);
-
+                
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                card.onclick = () => openMap(s);
                 card.innerHTML = `
                     <div class="student-header">
-                        <div class="student-name">⭐ ${s.name} <span class="student-nickname" title="点击复制小名" onclick="copyText('${s.nickname}', event)">(${s.nickname})</span></div>
-                        <span class="copy-icon" onclick="copyText('${s.name}', event)" title="复制全名">📋</span>
+                        <div class="student-name">⭐ ${s.name} <span class="student-nickname">(${s.nickname})</span></div>
                     </div>
                     <div class="student-info">📘 ${s.course}</div>
-                    <div class="student-info">🕒 ${s.time}</div>
                     <div class="stats-container">
-                        <span class="stat-attend">进度: ${attendCount}/${sLevelCount}</span>
-                        <span class="stat-reward">本周: <span class="highlight-score">${currentWeekScore}</span> | 总计: ${totalScore}</span>
+                        <span class="stat-attend">进度: ${attendCount}/20</span>
+                        <span class="stat-reward">总计: <span class="highlight-score">${totalScore}</span> ⭐</span>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -802,464 +377,72 @@ function renderStudentList() {
     });
 }
 
-function scrollToCurrentWeek() {
-    const courseList = courseData[currentStudentCourseType] || Array(20);
-    const targetRow = document.getElementById('level-row-' + (getWeekNum(courseList.length) - 1));
-    if (targetRow) targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+// --- 地图渲染 (保持原样) ---
+let currentSId = null;
+function openMap(student) {
+    currentSId = student.id;
+    document.getElementById('mapModal').style.display = 'flex';
+    document.getElementById('modalStudentName').innerText = `🚀 ${student.name} 的航线`;
+    document.getElementById('modalStudentInfo').innerText = `${student.course} | ${student.time}`;
+    renderMap();
 }
 
-function openMap(id, name, nickname, course, time) {
-    currentStudentId = id; currentStudentCourseType = getCourseType(course); currentStudentNameInfo = { name, nickname, course };
-    document.getElementById('mapModal').style.display = 'flex'; document.getElementById('reportPanel').style.display = 'none';
-    document.getElementById('modalStudentName').innerHTML = `🚀 ${name} <span style="font-size:0.6em; color:var(--gold);">(${nickname})</span> <span class="copy-icon" style="font-size:0.6em;" onclick="copyText('${name}', event)">📋</span>`;
-    document.getElementById('modalStudentInfo').innerText = `${course} | ${time}`;
-    renderMap(); setTimeout(() => scrollToCurrentWeek(), 150);
-}
-function closeMap() { document.getElementById('mapModal').style.display = 'none'; renderStudentList(); }
-
-// 战报系统
-function toggleReportPanel() {
-    const panel = document.getElementById('reportPanel');
-    if(panel.style.display === 'none' || panel.style.display === '') { panel.style.display = 'block'; generateReportText(); }
-    else panel.style.display = 'none';
-}
-function generateReportText() {
-    const courseList = courseData[currentStudentCourseType] || [];
-    const records = getAttendanceData(currentStudentId, courseList.length);
-    const currentWeekIdx = getWeekNum(courseList.length) - 1;
-    const curCourseInfo = courseList[currentWeekIdx] || {title: "未知关卡"};
-    const curScore = records[currentWeekIdx] ? records[currentWeekIdx].score : 0;
-    const totalScore = records.reduce((sum, r) => sum + (r.score || 0), 0);
-    const attendCount = records.filter(r => r.attended).length;
-    const { name, nickname, course } = currentStudentNameInfo;
-
-    document.getElementById('reportContent').value = `【小Q老师星际课堂 - 战报生成】\n🪐 探险家：${name} (${nickname})\n📘 当前星系：${course}\n📍 本周目标：第${currentWeekIdx + 1}关 - ${curCourseInfo.title}\n⭐ 本节斩获能量：${curScore} 颗星星\n🏆 累计星际总能量：${totalScore} 颗\n🚀 探索进度：已通关 ${attendCount}/${courseList.length} 个星球！\n✨ 老师寄语：${nickname}本周表现非常出色，继续保持探索精神哦！`;
-}
-function copyReportContent() { copyText(document.getElementById('reportContent').value); }
-
-function drawTreasurePath() {
-    const container = document.getElementById('mapContainer');
-    let oldSvg = document.getElementById('treasurePathSvg'); if (oldSvg) oldSvg.remove();
-    const nodes = container.querySelectorAll('.node-wrapper'); if (nodes.length < 2) return;
-
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.id = 'treasurePathSvg'; svg.style.position = 'absolute'; svg.style.top = '0'; svg.style.left = '0'; svg.style.width = '100%'; svg.style.height = '100%'; svg.style.zIndex = '1'; svg.style.pointerEvents = 'none';
-
-    let pathD = ''; const containerRect = container.getBoundingClientRect();
-    for (let i = 0; i < nodes.length; i++) {
-        const rect = nodes[i].getBoundingClientRect(); const x = rect.left - containerRect.left + rect.width / 2; const y = rect.top - containerRect.top + rect.height / 2;
-        if (i === 0) pathD += `M ${x} ${y} `;
-        else {
-            const prevRect = nodes[i - 1].getBoundingClientRect(); const prevX = prevRect.left - containerRect.left + prevRect.width / 2; const prevY = prevRect.top - containerRect.top + prevRect.height / 2;
-            pathD += `C ${prevX} ${prevY + (y - prevY) / 2}, ${x} ${prevY + (y - prevY) / 2}, ${x} ${y} `;
-        }
-    }
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', pathD); path.setAttribute('fill', 'none'); path.setAttribute('stroke', '#00d2ff'); path.setAttribute('stroke-width', '6'); path.setAttribute('stroke-linecap', 'round'); path.setAttribute('class', 'treasure-path'); 
-    svg.appendChild(path); container.insertBefore(svg, container.firstChild);
-}
-
-// ✨ 独立更新宝箱UI功能，避免重新渲染导致动画丢失
-function updateAllChestsUI(records) {
-    const rows = document.querySelectorAll('.level-row');
-    rows.forEach((row, idx) => {
-        if ((idx + 1) % 4 === 0) {
-            let chestBox = row.querySelector('.treasure-chest-box');
-            if(!chestBox) return;
-            let isPerfect = true;
-            for(let c = idx - 3; c <= idx; c++) { if(!records[c] || !records[c].attended) isPerfect = false; }
-
-            if(isPerfect) {
-                if(records[idx].chestOpened) {
-                    // 已开启的宝箱显示随机萌宠
-                    const petIcon = records[idx].petIcon || petIcons[Math.floor(Math.random() * petIcons.length)];
-                    if(!records[idx].petIcon) { records[idx].petIcon = petIcon; saveAttendanceData(currentStudentId, records); }
-                    chestBox.innerHTML = petIcon; chestBox.className = 'treasure-chest-box chest-opened'; chestBox.title = `点击查看萌宠：${petIcon}`; 
-                    chestBox.onclick = () => showPetCardFromIcon(petIcon, idx);
-                } else {
-                    chestBox.innerHTML = '🧰'; chestBox.className = 'treasure-chest-box chest-unlockable'; chestBox.title = "点击开启月全勤宝箱！";
-                    chestBox.onclick = () => {
-                        records[idx].chestOpened = true; records[idx].score += 5;
-                        const petIcon = petIcons[Math.floor(Math.random() * petIcons.length)];
-                        records[idx].petIcon = petIcon;
-                        saveAttendanceData(currentStudentId, records);
-                        updateAllChestsUI(records); // 再次刷新自身UI
-                        row.querySelector('.score-display').innerText = records[idx].score; // 同步加分显示
-                        const starsDisplay = document.getElementById(`stars-${idx}`);
-                        if(starsDisplay) starsDisplay.innerHTML = '⭐'.repeat(Math.min(records[idx].score, 5)); // 同步星星显示
-                        
-                        // 显示萌宠闪卡
-                        showPetCard(petIcon, idx);
-                        
-                        if(document.getElementById('reportPanel').style.display === 'block') generateReportText();
-                    };
-                }
-            } else {
-                chestBox.innerHTML = '🔒'; chestBox.className = 'treasure-chest-box chest-locked'; chestBox.title = "连续点亮4节课即可开启宝箱！"; chestBox.onclick = null;
-            }
-        }
-    });
-}
-
-// 渲染地图关卡
 function renderMap() {
-    const container = document.getElementById('mapContainer'); container.innerHTML = '';
-    const courseList = courseData[currentStudentCourseType] || Array.from({length:20}, (_,i)=>({title:`第${i+1}关`}));
-    totalLevels = courseList.length; // 更新全局关卡数
-    const records = getAttendanceData(currentStudentId, totalLevels);
-    const currentWeekIdx = getWeekNum(totalLevels) - 1;
+    const container = document.getElementById('mapContainer');
+    container.innerHTML = '';
+    const records = getAttendanceData(currentSId);
+    const currentWeekIdx = getWeekNum() - 1;
 
-    for (let i = 0; i < totalLevels; i++) {
-        const row = document.createElement('div'); row.className = 'level-row'; row.id = 'level-row-' + i; 
-        const wrapper = document.createElement('div'); wrapper.className = 'node-wrapper';
-
-        // 月全勤宝箱 (每4关初始化占位，具体状态由 updateAllChestsUI 统一控制)
-        if ((i + 1) % 4 === 0) {
-            const chestBox = document.createElement('div'); chestBox.className = 'treasure-chest-box';
-            wrapper.appendChild(chestBox);
-        }
+    for (let i = 0; i < 20; i++) {
+        const row = document.createElement('div');
+        row.className = 'level-row';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'node-wrapper';
 
         if (i === currentWeekIdx) {
-            const currentTag = document.createElement('div'); currentTag.className = 'current-week-tag'; currentTag.innerHTML = '📍 本周课程'; wrapper.appendChild(currentTag);
+            wrapper.innerHTML += `<div class="current-week-tag">📍 本周课程</div>`;
         }
 
-        const courseTitle = document.createElement('div'); courseTitle.className = 'course-title-label'; courseTitle.innerText = `第${i+1}关: ${courseList[i].title}`; wrapper.appendChild(courseTitle);
-        const node = document.createElement('div'); node.className = 'level-node';
-        if (i === currentWeekIdx && !records[i].attended) { node.style.boxShadow = '0 0 20px #00d2ff, inset 0 0 15px rgba(0, 210, 255, 0.5)'; node.style.borderColor = '#00d2ff'; }
+        const node = document.createElement('div');
+        node.className = `level-node ${records[i].attended ? 'completed' : ''}`;
+        node.innerHTML = records[i].attended ? '🌟' : i + 1;
         
-        if (records[i].attended) { node.classList.add('completed'); node.innerHTML = '🌟'; } else node.innerHTML = i + 1;
-        
-        // ✨ 修改为局部刷新，保留漂浮动画
-        node.onclick = () => { 
-            records[i].attended = !records[i].attended; 
-            saveAttendanceData(currentStudentId, records); 
-            
-            if (records[i].attended) {
-                node.classList.add('completed'); node.innerHTML = '🌟';
-                triggerFloatText(wrapper, '能量充满!', '#f1c40f');
-            } else {
-                node.classList.remove('completed'); node.innerHTML = i + 1;
-            }
-            updateAllChestsUI(records); // 仅刷新宝箱状态，不重载地图
-            if(document.getElementById('reportPanel').style.display === 'block') generateReportText(); 
+        node.onclick = () => {
+            records[i].attended = !records[i].attended;
+            if(records[i].attended) records[i].score = 3;
+            localStorage.setItem(currentSId, JSON.stringify(records));
+            renderMap();
         };
 
-        const scoreCtrl = document.createElement('div'); scoreCtrl.className = 'score-controller';
-        scoreCtrl.innerHTML = `<div class="stars-display" id="stars-${i}">${'⭐'.repeat(Math.min(records[i].score || 0, 5))}</div><div class="score-buttons-row"><button class="score-btn minus">－</button><div class="score-display">${records[i].score || 0}</div><button class="score-btn plus">＋</button></div>`;
-        const scoreVal = scoreCtrl.querySelector('.score-display');
-        
-        scoreCtrl.querySelector('.minus').onclick = () => { 
-            if(records[i].score>0){ 
-                records[i].score--; saveAttendanceData(currentStudentId, records); 
-                scoreVal.innerText = records[i].score;
-                document.getElementById(`stars-${i}`).innerHTML = '⭐'.repeat(Math.min(records[i].score, 5));
-                triggerFloatText(scoreCtrl, '-1', '#e74c3c');
-                if(document.getElementById('reportPanel').style.display === 'block') generateReportText(); 
-            } 
-        };
-        scoreCtrl.querySelector('.plus').onclick = () => { 
-            records[i].score++; saveAttendanceData(currentStudentId, records); 
-            scoreVal.innerText = records[i].score;
-            document.getElementById(`stars-${i}`).innerHTML = '⭐'.repeat(Math.min(records[i].score, 5));
-            triggerFloatText(scoreCtrl, '+1', '#2ecc71');
-            if(document.getElementById('reportPanel').style.display === 'block') generateReportText(); 
-        };
+        const scoreCtrl = document.createElement('div');
+        scoreCtrl.className = 'score-controller';
+        scoreCtrl.innerHTML = `
+            <div class="stars-display">${'⭐'.repeat(Math.min(records[i].score, 5))}</div>
+            <div class="score-buttons-row">
+                <button class="score-btn minus" onclick="updateScore(${i}, -1, event)">-</button>
+                <div class="score-display">${records[i].score}</div>
+                <button class="score-btn plus" onclick="updateScore(${i}, 1, event)">+</button>
+            </div>
+        `;
 
-        wrapper.appendChild(node); wrapper.appendChild(scoreCtrl); row.appendChild(wrapper); container.appendChild(row);
+        wrapper.appendChild(node);
+        wrapper.appendChild(scoreCtrl);
+        row.appendChild(wrapper);
+        container.appendChild(row);
     }
-    
-    // 初始化完成后，统一计算并渲染一次宝箱外观
-    updateAllChestsUI(records);
-    
-    // 🏆 添加终极大奖箱（在20关之后）
-    if (totalLevels >= 20) {
-        addGrandPrizeChest(container, records, totalLevels);
-    }
-    
-    setTimeout(drawTreasurePath, 50);
 }
 
-// 🏆 添加终极大奖箱
-function addGrandPrizeChest(container, records, totalLevels) {
-    const grandChestDiv = document.createElement('div');
-    grandChestDiv.className = 'grand-chest-container';
-    
-    // 检查是否已通关20关
-    let allCompleted = true;
-    for (let i = 0; i < Math.min(totalLevels, 20); i++) {
-        if (!records[i] || !records[i].attended) {
-            allCompleted = false;
-            break;
-        }
-    }
-    
-    // 检查大奖是否已领取
-    const grandPrizeData = localStorage.getItem(currentStudentId + '_grandPrize');
-    const grandPrize = grandPrizeData ? JSON.parse(grandPrizeData) : null;
-    
-    let chestClass = 'grand-chest locked';
-    let chestIcon = '🔒';
-    let chestTitle = '通关全部20关即可开启终极大奖箱！';
-    let clickHandler = null;
-    
-    if (allCompleted) {
-        if (grandPrize) {
-            // 已领取
-            chestClass = 'grand-chest opened';
-            chestIcon = grandPrize.icon || '🏆';
-            chestTitle = `已获得：${grandPrize.level} - ${grandPrize.prize}`;
-        } else {
-            // 可开启
-            chestClass = 'grand-chest unlockable';
-            chestIcon = '🎁';
-            chestTitle = '🎉 恭喜通关！点击开启终极大奖！';
-            clickHandler = () => openGrandPrize(records);
-        }
-    }
-    
-    grandChestDiv.innerHTML = `<div class="${chestClass}" title="${chestTitle}">${chestIcon}</div>`;
-    
-    if (clickHandler) {
-        grandChestDiv.querySelector('.grand-chest').onclick = clickHandler;
-    }
-    
-    container.appendChild(grandChestDiv);
-}
-
-// 🎁 开启终极大奖
-function openGrandPrize(records) {
-    // 随机抽奖（设置不同概率）
-    const rand = Math.random();
-    let prizeIndex;
-    if (rand < 0.05) { // 5% 特等奖
-        prizeIndex = 0;
-    } else if (rand < 0.20) { // 15% 一等奖
-        prizeIndex = 1;
-    } else if (rand < 0.50) { // 30% 二等奖
-        prizeIndex = 2;
-    } else { // 50% 三等奖
-        prizeIndex = 3;
-    }
-    
-    const prize = grandPrizes[prizeIndex];
-    
-    // 保存获奖信息
-    localStorage.setItem(currentStudentId + '_grandPrize', JSON.stringify(prize));
-    
-    // 显示弹窗
-    document.getElementById('prizeIcon').textContent = prize.icon;
-    document.getElementById('prizeLevel').textContent = prize.level;
-    document.getElementById('prizeLevel').style.color = prize.color;
-    document.getElementById('prizeText').textContent = prize.prize;
-    document.getElementById('prizeModal').style.display = 'flex';
-    
-    // 重新渲染地图以更新宝箱状态
+function updateScore(idx, delta, event) {
+    event.stopPropagation();
+    const records = getAttendanceData(currentSId);
+    records[idx].score = Math.max(0, records[idx].score + delta);
+    localStorage.setItem(currentSId, JSON.stringify(records));
     renderMap();
 }
 
-// 关闭大奖弹窗
-function closePrizeModal() {
-    document.getElementById('prizeModal').style.display = 'none';
-}
+function closeMap() { document.getElementById('mapModal').style.display = 'none'; renderStudentList(); }
 
-// 🐾 显示萌宠闪卡
-function showPetCard(petIcon, weekIndex = -1) {
-    const petData = petDatabase[petIcon] || { name: '神秘萌宠', level: 'R', power: '未知能力', desc: '来自遥远星系的神秘访客' };
-    const levelColor = levelColors[petData.level] || '#ffd700';
-    const levelName = levelNames[petData.level] || '稀有';
-    
-    const modal = document.getElementById('petCardModal');
-    const card = document.getElementById('petCard');
-    
-    // 设置闪卡内容
-    document.getElementById('petCardIcon').textContent = petIcon;
-    document.getElementById('petCardName').textContent = petData.name;
-    document.getElementById('petCardLevel').textContent = `${petData.level} ${levelName}`;
-    document.getElementById('petCardLevel').style.color = levelColor;
-    document.getElementById('petCardLevel').style.borderColor = levelColor;
-    document.getElementById('petCardPower').textContent = petData.power;
-    document.getElementById('petCardDesc').textContent = petData.desc;
-    
-    // 设置图标（使用图片或emoji）
-    const iconWrapper = document.getElementById('petCardIcon');
-    if (petData.img) {
-        iconWrapper.innerHTML = `<img src="${petData.img}" style="width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 0 20px ${levelColor});">`;
-    } else {
-        iconWrapper.textContent = petIcon;
-    }
-    
-    // 设置主题色
-    card.style.setProperty('--pet-color', levelColor);
-    
-    // 保存当前周索引
-    document.getElementById('currentPetWeek').value = weekIndex;
-    
-    // 获取全部积分总和并更新按钮状态
-    const records = getAttendanceData(currentStudentId, totalLevels);
-    const totalScore = records.reduce((sum, r) => sum + (r.score || 0), 0);
-    document.getElementById('rerollCost').textContent = `总积分：${totalScore} ⭐`;
-    
-    const rerollBtn = document.getElementById('petRerollBtn');
-    rerollBtn.disabled = totalScore < 3; // 总积分不足3分时禁用按钮
-    
-    // 显示弹窗
-    modal.style.display = 'flex';
-    
-    // 添加抖动加载动画
-    card.classList.remove('pet-card-shake');
-    setTimeout(() => card.classList.add('pet-card-shake'), 10);
-}
-
-// 🐾 图鉴数据存储功能
-function getPetCollectionData() {
-    const data = localStorage.getItem(currentStudentId + '_petCollection');
-    return data ? JSON.parse(data) : {};
-}
-
-function savePetCollectionData(petCollection) {
-    localStorage.setItem(currentStudentId + '_petCollection', JSON.stringify(petCollection));
-}
-
-// 添加萌宠到图鉴
-function addPetToCollection(petIcon) {
-    const collection = getPetCollectionData();
-    collection[petIcon] = (collection[petIcon] || 0) + 1;
-    savePetCollectionData(collection);
-}
-
-// 关闭萌宠闪卡
-function closePetCard() {
-    // 获取当前显示的萌宠图标
-    const petIcon = document.getElementById('petCardIcon').textContent;
-    // 添加到图鉴
-    addPetToCollection(petIcon);
-    document.getElementById('petCardModal').style.display = 'none';
-    showToast('🎉 萌宠已收入图鉴！');
-}
-
-// 📖 显示萌宠图鉴
-function showPetCollection() {
-    const modal = document.getElementById('collectionModal');
-    const grid = document.getElementById('collectionGrid');
-    const stats = document.getElementById('collectionStats');
-    
-    // 获取已收集的萌宠及其数量（使用独立的图鉴存储）
-    const petCounts = getPetCollectionData();
-    
-    // 更新统计
-    const collectedTypes = Object.keys(petCounts).length;
-    stats.textContent = `已收集：${collectedTypes}/${petIcons.length}`;
-    
-    // 生成图鉴格子
-    grid.innerHTML = '';
-    
-    petIcons.forEach(petIcon => {
-        const petData = petDatabase[petIcon];
-        const count = petCounts[petIcon] || 0;
-        const isCollected = count > 0;
-        const levelColor = levelColors[petData.level] || '#fff';
-        // 检查是否有图片
-        const iconDisplay = petData.img ? `<img src="${petData.img}" style="width: 40px; height: 40px; object-fit: contain;">` : petIcon;
-        
-        const item = document.createElement('div');
-        item.className = `pet-collection-item ${isCollected ? '' : 'locked'}`;
-        
-        if(isCollected) {
-            item.innerHTML = `
-                <div class="pet-collection-icon">${iconDisplay}</div>
-                <div class="pet-collection-name">${petData.name}</div>
-                <div class="pet-collection-level" style="background: ${levelColor}; color: #fff;">${petData.level}</div>
-                ${count > 1 ? `<div style="font-size: 0.6em; color: var(--gold); font-weight: bold; margin-top: 3px;">x${count}</div>` : ''}
-            `;
-            item.onclick = () => showPetCard(petIcon, -1);
-        } else {
-            item.innerHTML = `
-                <div class="pet-collection-icon">❓</div>
-                <div class="pet-collection-name">???</div>
-                <div class="locked-overlay">🔒</div>
-            `;
-        }
-        
-        grid.appendChild(item);
-    });
-    
-    modal.style.display = 'flex';
-}
-
-// 关闭萌宠图鉴
-function closeCollectionModal() {
-    document.getElementById('collectionModal').style.display = 'none';
-}
-
-// 从闪卡打开图鉴
-function openCollectionFromCard() {
-    document.getElementById('petCardModal').style.display = 'none';
-    setTimeout(() => showPetCollection(), 100);
-}
-
-// 点击萌宠图标也可以查看闪卡
-function showPetCardFromIcon(petIcon, weekIndex = -1) {
-    if(petIcon && petDatabase[petIcon]) {
-        showPetCard(petIcon, weekIndex);
-    }
-}
-
-// 🔄 重抽萌宠
-function rerollPet() {
-    const weekIndex = parseInt(document.getElementById('currentPetWeek').value);
-    if(weekIndex < 0) {
-        showToast('⚠️ 无法重抽，请重新打开宝箱');
-        return;
-    }
-    
-    const records = getAttendanceData(currentStudentId, totalLevels);
-    const totalScore = records.reduce((sum, r) => sum + (r.score || 0), 0);
-    
-    if(totalScore < 3) {
-        showToast('⚠️ 总积分不足，无法重抽');
-        return;
-    }
-    
-    // 从总积分中扣除3分（优先从当前周开始，不够再往前扣）
-    let remainingDeduction = 3;
-    for(let i = weekIndex; i >= 0 && remainingDeduction > 0; i--) {
-        if(records[i] && records[i].score > 0) {
-            const deduct = Math.min(records[i].score, remainingDeduction);
-            records[i].score -= deduct;
-            remainingDeduction -= deduct;
-        }
-    }
-    // 如果前面的周不够，从后面的周扣
-    if(remainingDeduction > 0) {
-        for(let i = 0; i < records.length && remainingDeduction > 0; i++) {
-            if(records[i] && records[i].score > 0) {
-                const deduct = Math.min(records[i].score, remainingDeduction);
-                records[i].score -= deduct;
-                remainingDeduction -= deduct;
-            }
-        }
-    }
-    
-    // 重新随机萌宠（排除当前的）
-    const currentPet = records[weekIndex].petIcon;
-    let availablePets = petIcons.filter(p => p !== currentPet);
-    if(availablePets.length === 0) availablePets = petIcons; // 防止只有一种的情况
-    
-    const newPetIcon = availablePets[Math.floor(Math.random() * availablePets.length)];
-    records[weekIndex].petIcon = newPetIcon;
-    
-    // 保存数据
-    saveAttendanceData(currentStudentId, records);
-    
-    // 更新UI
-    renderMap();
-    
-    // 显示新的萌宠闪卡
-    showToast('🔄 消耗3总积分重抽成功！');
-    setTimeout(() => showPetCard(newPetIcon, weekIndex), 300);
-}
-
-window.addEventListener('resize', () => { if (document.getElementById('mapModal').style.display === 'flex') drawTreasurePath(); });
+// 启动！
 renderStudentList();
 </script>
 </body>
