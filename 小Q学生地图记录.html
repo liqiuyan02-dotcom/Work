@@ -310,8 +310,11 @@
         </div>
         <div class="console-box">
             <h4>✅ 批量出勤点亮</h4>
-            <textarea id="batchAttendanceInput" placeholder="支持两种格式 (支持多行):&#10;① 姓名 日期 [状态]&#10;② 日期 姓名 [状态]&#10;状态: 到课/请假/缺勤 (请假缺勤自动跳过)&#10;例如1: 梁昕乔 2026-03-05 到课&#10;例如2: 2026-03-06 李小明 请假"></textarea>
-            <button onclick="batchMarkAttendance()">一键点亮出勤记录</button>
+            <textarea id="batchAttendanceInput" placeholder="✨ 智能识别，无需严格格式！&#10;支持任意分隔符（空格/逗号/制表符/竖线）&#10;支持任意字段顺序（日期在前或姓名在前）&#10;日期格式：2026-03-05 / 3月5日 / 03/05/2026&#10;状态词：到课/请假/缺勤/出勤（自动识别）&#10;&#10;直接从Excel/WPS复制粘贴即可！"></textarea>
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button onclick="batchMarkAttendance()" style="flex: 2;">✨ 一键点亮出勤记录</button>
+                <button onclick="testParseAttendance()" style="flex: 1; background: #3b82f6;">🔍 测试解析</button>
+            </div>
         </div>
         <div class="console-box">
             <h4>🔄 数据管理</h4>
@@ -562,7 +565,7 @@ const grandPrizes = [
     { level: '三等奖', icon: '🥉', prize: '优秀学员证书 + 益智玩具', color: '#cd7f32' }
 ];
 
-// 已更新纠正姓名：邓琬曦 -> 邓琬羲
+// 已更新纠正姓名：邓琬曦 -> 邓琬羲 -> 邓琬義
 const nicknameMap = {
     "林瀚丞": "丞丞", "梁昕乔": "乔乔", "钟昀昊": "昊昊", "李怡瞳": "怡瞳",
     "沙佩琪": "佩琪", "李梓宁": "梓宁", "黄榆斐": "榆斐", "杨佳兴": "佳兴",
@@ -571,7 +574,7 @@ const nicknameMap = {
     "曾乐凯": "乐凯", "庞郁翰": "郁翰", "李汶浩": "汶浩", "李欣蓉": "欣蓉",
     "谢善诺": "善诺", "马悦然": "悦然", "郭景鸣": "景鸣", "冯彦哲": "乐乐",
     "吴浩洋": "浩洋", "吴浩骏": "浩骏", "王骏诚": "骏诚", "洪一栩": "一栩",
-    "邓琬羲": "琬羲", "邓琬颖": "琬颖", "方柳莫": "莫莫", "苏睿哲": "睿哲",
+    "邓琬義": "琬義", "邓琬颖": "琬颖", "方柳莫": "莫莫", "苏睿哲": "睿哲",
     "黄钰茹": "钰茹", "李星佑": "星佑", "陈芊雅": "芊雅"
 };
 
@@ -608,7 +611,7 @@ Valeriya｜周六｜发现世界｜09:00-10:00｜
 吴浩骏｜周日｜SPIKE02｜10:30-12:00｜
 王骏诚｜周日｜SPIKE02｜10:30-12:00｜
 洪一栩｜周日｜SPIKE02｜10:30-12:00｜
-邓琬羲｜周日｜SPIKE02｜10:30-12:00｜
+邓琬義｜周日｜SPIKE02｜10:30-12:00｜
 邓琬颖｜周日｜SPIKE02｜10:30-12:00｜
 方柳莫｜周日｜SPIKE02｜10:30-12:00｜
 苏睿哲｜周日｜Wedo创造世界｜16:00-17:30｜
@@ -630,9 +633,36 @@ function loadStudentData() {
     });
 }
 
+function migrateStudentData() {
+    const oldId = 'xq_邓琬羲_SPIKE02';
+    const newId = 'xq_邓琬義_SPIKE02';
+    
+    if (localStorage.getItem(oldId) && !localStorage.getItem(newId)) {
+        localStorage.setItem(newId, localStorage.getItem(oldId));
+        if (localStorage.getItem(oldId + '_grandPrize')) {
+            localStorage.setItem(newId + '_grandPrize', localStorage.getItem(oldId + '_grandPrize'));
+        }
+        if (localStorage.getItem(oldId + '_petCollection')) {
+            localStorage.setItem(newId + '_petCollection', localStorage.getItem(oldId + '_petCollection'));
+        }
+    }
+}
+
 const savedStudents = localStorage.getItem('xq_students_data');
 if (savedStudents) {
     students = JSON.parse(savedStudents);
+    
+    students.forEach(s => {
+        if (s.name === '邓琬羲') {
+            s.name = '邓琬義';
+            s.id = 'xq_邓琬義_SPIKE02';
+            if (s.nickname === '琬羲') s.nickname = '琬義';
+        }
+    });
+    
+    migrateStudentData();
+    saveStudentsData();
+    
     // 自动修复：如果没有学生数据，强制重新加载
     if (students.length === 0) {
         localStorage.removeItem('xq_students_data');
@@ -641,6 +671,7 @@ if (savedStudents) {
     }
 } else {
     loadStudentData();
+    migrateStudentData();
     localStorage.setItem('xq_students_data', JSON.stringify(students));
 }
 
@@ -734,40 +765,152 @@ function addNewStudents() {
     }
 }
 
+function parseDateSmart(dateStr) {
+    if (!dateStr) return null;
+    
+    const cnDateMatch = dateStr.match(/(\d{1,2})月(\d{1,2})日/);
+    if (cnDateMatch) {
+        const month = parseInt(cnDateMatch[1]);
+        const day = parseInt(cnDateMatch[2]);
+        const year = new Date().getFullYear();
+        return new Date(year, month - 1, day);
+    }
+    
+    return new Date(dateStr);
+}
+
+function extractChineseName(text) {
+    const nameMatches = text.match(/[\u4e00-\u9fa5·]{2,10}/g);
+    if (nameMatches && nameMatches.length > 0) {
+        return nameMatches[0];
+    }
+    const enNameMatches = text.match(/[a-zA-Z]{2,}/g);
+    if (enNameMatches && enNameMatches.length > 0) {
+        return enNameMatches[0];
+    }
+    const allWords = text.split(' ').filter(w => w.trim().length >= 2);
+    if (allWords.length > 0) {
+        return allWords[0];
+    }
+    return null;
+}
+
+function smartParseAttendanceLine(line) {
+    let cleanLine = line.trim();
+    
+    cleanLine = cleanLine.replace(/\t+/g, ' ');
+    cleanLine = cleanLine.replace(/\s+/g, ' ');
+    cleanLine = cleanLine.replace(/\u00A0/g, ' ');
+    
+    const datePatterns = [
+        /(\d{4}[-/.]\d{1,2}[-/.]\d{1,2})/g,
+        /(\d{1,2}[-/.]\d{1,2}[-/.]\d{4})/g,
+        /(\d{1,2}月\d{1,2}日)/g
+    ];
+    
+    let dateStr = null;
+    let dateMatch = null;
+    for (const pattern of datePatterns) {
+        const matches = cleanLine.match(pattern);
+        if (matches && matches.length > 0) {
+            dateStr = matches[0];
+            dateMatch = matches[0];
+            break;
+        }
+    }
+    
+    let status = '到课';
+    const statusWords = ['请假', '缺勤', '缺课', '未到', '缺席'];
+    const attendWords = ['到课', '出勤', '已到', '正常', '上课'];
+    
+    for (const word of statusWords) {
+        if (cleanLine.includes(word)) {
+            status = '请假';
+            break;
+        }
+    }
+    for (const word of attendWords) {
+        if (cleanLine.includes(word)) {
+            status = '到课';
+            break;
+        }
+    }
+    
+    let remaining = cleanLine;
+    if (dateMatch) {
+        remaining = cleanLine.replace(dateMatch, '');
+    }
+    remaining = remaining.replace(/请假|缺勤|缺课|未到|缺席|到课|出勤|已到|正常|上课/g, '');
+    remaining = remaining.replace(/[,，|｜、]/g, ' ').replace(/\s+/g, ' ').trim();
+    
+    let name = extractChineseName(remaining);
+    if (!name) {
+        const words = remaining.split(' ').filter(w => w.length >= 2);
+        name = words[0];
+    }
+    
+    return { name, dateStr, status };
+}
+
+function fuzzyMatchName(inputName, studentName) {
+    if (!inputName || !studentName) return false;
+    const input = inputName.replace(/\s/g, '');
+    const target = studentName.replace(/\s/g, '');
+    
+    if (input === target) return true;
+    if (target.includes(input) || input.includes(target)) return true;
+    
+    let matchCount = 0;
+    for (const char of input) {
+        if (target.includes(char)) matchCount++;
+    }
+    if (input.length >= 2 && matchCount === input.length) return true;
+    
+    return false;
+}
+
 function batchMarkAttendance() {
     const val = document.getElementById('batchAttendanceInput').value.trim();
     if(!val) return showToast('⚠️ 请输入出勤数据！');
     let markedCount = 0;
     let skippedCount = 0;
+    let notFoundNames = [];
+    let alreadyMarked = 0;
+    let debugInfo = [];
 
     val.split('\n').forEach(line => {
         if(!line.trim()) return;
-        const parts = line.split(/\s+/).filter(p => p.trim());
-        if(parts.length < 2) return;
         
-        let name, dateStr, status = '到课';
+        const { name, dateStr, status } = smartParseAttendanceLine(line);
         
-        if(parts.length >= 3 && isNaN(new Date(parts[0]).getTime()) === false) {
-            dateStr = parts[0].trim();
-            name = parts[1].trim();
-            status = (parts[2] || '到课').trim();
-        } else {
-            name = parts[0].trim();
-            dateStr = parts[1].trim();
-            status = (parts[2] || '到课').trim();
+        if (!name || !dateStr) {
+            debugInfo.push(`解析失败: ${line.substring(0, 20)}...`);
+            return;
         }
         
-        if(status.includes('请假') || status.includes('缺') || status.includes('未到')) {
+        if(status === '请假') {
             skippedCount++;
             return;
         }
         
-        const targetDate = new Date(dateStr);
-        if(isNaN(targetDate.getTime())) return;
+        const targetDate = parseDateSmart(dateStr);
+        if(!targetDate || isNaN(targetDate.getTime())) {
+            debugInfo.push(`日期无效: ${dateStr}`);
+            return;
+        }
         
         let weekIdx = getWeekNumByDate(targetDate) - 1; 
+        weekIdx = Math.max(0, Math.min(weekIdx, 20));
         
-        const matchedStudents = students.filter(s => s.name === name);
+        const matchedStudents = students.filter(s => fuzzyMatchName(name, s.name));
+        
+        if (matchedStudents.length === 0) {
+            if (!notFoundNames.includes(name)) {
+                notFoundNames.push(name);
+            }
+            return;
+        }
+        
         matchedStudents.forEach(s => {
             const typeKey = getCourseType(s.course);
             const sLevelCount = (courseData[typeKey] || Array(20)).length;
@@ -779,21 +922,65 @@ function batchMarkAttendance() {
                     if(!records[weekIdx].score) records[weekIdx].score = 3; 
                     saveAttendanceData(s.id, records);
                     markedCount++;
+                } else {
+                    alreadyMarked++;
                 }
             }
         });
     });
     
+    let finalMsg = '';
     if(markedCount > 0) {
-        renderStudentList();
-        const skipMsg = skippedCount > 0 ? ` (自动跳过 ${skippedCount} 条请假/缺勤记录)` : '';
-        showToast(`🚀 成功为您点亮 ${markedCount} 条出勤记录！${skipMsg}`);
+        const skipMsg = skippedCount > 0 ? ` (跳过 ${skippedCount} 条请假)` : '';
+        const alreadyMsg = alreadyMarked > 0 ? ` (${alreadyMarked} 条已点亮过)` : '';
+        finalMsg = `🚀 成功点亮 ${markedCount} 条记录！${skipMsg}${alreadyMsg}`;
         document.getElementById('batchAttendanceInput').value = '';
-    } else if(skippedCount > 0) {
-        showToast(`ℹ️ 已跳过 ${skippedCount} 条请假/缺勤记录`);
-    } else {
-        showToast('⚠️ 未检测到可点亮的数据（可能已点亮或日期不合规）。');
+    } else if (alreadyMarked > 0) {
+        finalMsg = `ℹ️ ${alreadyMarked} 条记录已点亮过`;
+        document.getElementById('batchAttendanceInput').value = '';
     }
+    if(notFoundNames.length > 0) {
+        finalMsg += `\n⚠️ 未匹配: ${notFoundNames.join('、')}`;
+    }
+    if(skippedCount > 0 && markedCount === 0 && alreadyMarked === 0) {
+        finalMsg = `ℹ️ 已跳过 ${skippedCount} 条请假记录`;
+    }
+    if(markedCount === 0 && skippedCount === 0 && notFoundNames.length === 0 && alreadyMarked === 0) {
+        finalMsg = '⚠️ 未检测到可点亮的数据\n请检查姓名和日期格式';
+    }
+    
+    renderStudentList();
+    showToast(finalMsg);
+}
+
+function testParseAttendance() {
+    const val = document.getElementById('batchAttendanceInput').value.trim();
+    if(!val) return showToast('⚠️ 请输入出勤数据！');
+    
+    let results = [];
+    
+    val.split('\n').forEach((line, idx) => {
+        if(!line.trim()) return;
+        
+        const { name, dateStr, status } = smartParseAttendanceLine(line);
+        const targetDate = parseDateSmart(dateStr);
+        let weekIdx = targetDate ? getWeekNumByDate(targetDate) - 1 : -1;
+        weekIdx = Math.max(0, Math.min(weekIdx, 20));
+        
+        const matchedStudents = students.filter(s => fuzzyMatchName(name, s.name));
+        const matchInfo = matchedStudents.length > 0 
+            ? `匹配${matchedStudents.length}人: ${matchedStudents.map(s=>s.name).join(',')}`
+            : '未匹配';
+        
+        const dateValid = targetDate && !isNaN(targetDate.getTime()) 
+            ? `周${weekIdx + 1}` 
+            : '日期无效';
+        
+        results.push(`行${idx + 1}: 姓名=${name || '空'}, 日期=${dateStr || '空'}(${dateValid}), 状态=${status}, ${matchInfo}`);
+    });
+    
+    alert('🔍 解析结果:\n\n' + results.join('\n') + '\n\n' +
+          '如果解析正确，点击「一键点亮出勤记录」即可点亮！');
 }
 
 const dayOrder = { '周一':1, '周二':2, '周三':3, '周四':4, '周五':5, '周六':6, '周日':7 };
