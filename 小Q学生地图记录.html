@@ -266,12 +266,16 @@
     .pet-reroll-btn:disabled { background: #666; cursor: not-allowed; opacity: 0.5; transform: none; box-shadow: none; }
     .reroll-cost { position: relative; z-index: 1; color: #ffd700; font-size: 0.85em; margin-top: 8px; text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
 
-    /* 📖 萌宠图鉴样式 */
+    /* 📖 图鉴样式 */
     .collection-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); display: none; justify-content: center; align-items: center; z-index: 10002; backdrop-filter: blur(15px); }
-    .collection-content { background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); width: 90%; max-width: 800px; max-height: 85vh; border-radius: 20px; padding: 30px; position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(102, 126, 234, 0.4); }
+    .collection-content { background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); width: 90%; max-width: 900px; max-height: 90vh; border-radius: 20px; padding: 30px; position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(102, 126, 234, 0.4); }
     .collection-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid rgba(255,255,255,0.1); }
     .collection-title { font-size: 1.8em; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 10px; }
     .collection-stats { color: #ffd700; font-size: 1em; }
+    .collection-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .collection-tab { padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.1); color: #fff; cursor: pointer; transition: all 0.3s; border: none; font-size: 0.9em; }
+    .collection-tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .collection-category-title { color: #fff; font-size: 1.1em; margin: 15px 0 10px 0; padding-left: 5px; border-left: 4px solid #ffd700; }
     .collection-close { font-size: 2em; color: rgba(255,255,255,0.5); cursor: pointer; transition: 0.3s; }
     .collection-close:hover { color: #ff7675; transform: rotate(90deg); }
     .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; max-height: 55vh; overflow-y: auto; padding-right: 10px; }
@@ -342,7 +346,7 @@
             <p id="modalStudentInfo">课程信息</p>
             <div class="action-buttons">
                 <button class="action-btn" onclick="toggleReportPanel()">📜 生成战报</button>
-                <button class="action-btn" onclick="showPetCollection()">📖 萌宠图鉴</button>
+                <button class="action-btn" onclick="showPetCollection()">📖 图鉴</button>
                 <button class="action-btn danger" onclick="resetStudentData()">🔄 重置记录</button>
             </div>
             <div class="report-panel" id="reportPanel">
@@ -387,9 +391,15 @@
 <div class="collection-modal" id="collectionModal">
     <div class="collection-content">
         <div class="collection-header">
-            <div class="collection-title">📖 萌宠图鉴</div>
-            <div class="collection-stats" id="collectionStats">已收集：0/20</div>
+            <div class="collection-title">📖 图鉴</div>
+            <div class="collection-stats" id="collectionStats">已收集：0/250</div>
             <span class="collection-close" onclick="closeCollectionModal()">×</span>
+        </div>
+        <div class="collection-tabs">
+            <button class="collection-tab active" onclick="filterCollection('all')">全部</button>
+            <button class="collection-tab" onclick="filterCollection('pet')">🐾 萌宠(150)</button>
+            <button class="collection-tab" onclick="filterCollection('weapon')">⚔️ 武器(50)</button>
+            <button class="collection-tab" onclick="filterCollection('treasure')">💎 宝物(50)</button>
         </div>
         <div class="collection-grid" id="collectionGrid"></div>
     </div>
@@ -535,27 +545,293 @@ function getWeekNum(maxLevels) {
     return weekNum;
 }
 
-const petDatabase = {
-    // [简化的部分以缩减冗长代码，实际运行完整呈现]
-    '🐱': { name: '星际喵咪', level: 'R', power: '九条命 - 可以复活9次', desc: '来自喵星的神秘访客' },
-    '🐶': { name: '忠诚汪汪', level: 'SR', power: '追踪嗅觉 - 能找到任何隐藏宝藏', desc: '星际探险队的最佳伙伴' },
-    '🐰': { name: '月兔精灵', level: 'R', power: '极速跳跃 - 一步跨越一个星球', desc: '住在月亮上的可爱精灵' },
-    '🐻': { name: '熊熊勇士', level: 'SSR', power: '熊掌一击 - 可以击碎任何障碍', desc: '森林王国的守护者' },
-    '🐼': { name: '功夫熊猫', level: 'UR', power: '太极神功 - 以柔克刚无敌手', desc: '来自东方的神秘大师' },
-    '🐯': { name: '白虎神兽', level: 'UR', power: '王者气场 - 让敌人自动臣服', desc: '百兽之王的威严化身' },
-    '🦁': { name: '狮子王', level: 'SSR', power: '狮吼功 - 声波震碎一切', desc: '草原上最耀眼的明星' },
-    '🐵': { name: '齐天大圣', level: 'UR', power: '七十二变 - 想变什么变什么', desc: '从石头里蹦出来的传奇' },
-    '🦄': { name: '独角兽', level: 'UR', power: '彩虹魔法 - 治愈一切伤痛', desc: '传说中的神兽' },
-    '🦋': { name: '梦蝶仙子', level: 'SSR', power: '梦境穿梭 - 自由进出他人梦境', desc: '庄周梦蝶，蝶梦庄周' },
-    '🦖': { name: '霸王龙', level: 'UR', power: '霸王咆哮 - 震碎敌人耳膜', desc: '史前最强大的掠食者' },
-    '🐉': { name: '东方神龙', level: 'UR', power: '呼风唤雨 - 掌控天气', desc: '传说中的神兽之王' },
-    '👾': { name: '太空怪兽', level: 'UR', power: '激光眼 - 发射激光', desc: '来自外太空的神秘生物' },
-    '🔥': { name: '凤凰', level: 'UR', power: '涅槃重生 - 无限复活', desc: '能浴火重生的神鸟', img: 'https://cdn-icons-png.flaticon.com/512/616/616554.png' }
-};
+const petDatabase = {};
+const weaponDatabase = {};
+const treasureDatabase = {};
+
+// ========== 150个萌宠卡片 ==========
+(function() {
+    const pets = [
+        {icon:'🐱',name:'星际喵咪',level:'R',power:'九条命',desc:'来自喵星的神秘访客'},
+        {icon:'🐶',name:'忠诚汪汪',level:'R',power:'追踪嗅觉',desc:'星际探险队的最佳伙伴'},
+        {icon:'🐰',name:'月兔精灵',level:'R',power:'极速跳跃',desc:'住在月亮上的可爱精灵'},
+        {icon:'🐭',name:'机灵鼠',level:'N',power:'穿墙术',desc:'哪里都能钻进去'},
+        {icon:'🐹',name:'仓鼠勇士',level:'N',power:'储藏专家',desc:'腮帮子能装下全世界'},
+        {icon:'🐻',name:'熊熊勇士',level:'SR',power:'熊掌一击',desc:'森林王国的守护者'},
+        {icon:'🐻‍❄️',name:'北极熊王',level:'SSR',power:'冰霜吐息',desc:'来自北极的冰雪王者'},
+        {icon:'🐼',name:'功夫熊猫',level:'UR',power:'太极神功',desc:'来自东方的神秘大师'},
+        {icon:'🐯',name:'白虎神兽',level:'UR',power:'王者气场',desc:'百兽之王的威严化身'},
+        {icon:'🦁',name:'狮子王',level:'SSR',power:'狮吼功',desc:'草原上最耀眼的明星'},
+        {icon:'🐮',name:'牛魔王',level:'SR',power:'蛮力冲撞',desc:'力大无穷的牛魔王'},
+        {icon:'🐷',name:'天蓬元帅',level:'SR',power:'三十六变',desc:'会三十六变的猪刚鬣'},
+        {icon:'🐸',name:'青蛙王子',level:'R',power:'水元素',desc:'亲吻能变成王子哦'},
+        {icon:'🐵',name:'齐天大圣',level:'UR',power:'七十二变',desc:'从石头里蹦出来的传奇'},
+        {icon:'🙈',name:'非礼勿视猴',level:'R',power:'隐身',desc:'看不见我看不见我'},
+        {icon:'🦍',name:'金刚',level:'SSR',power:'巨力',desc:'能爬上帝国大厦的巨兽'},
+        {icon:'🦊',name:'九尾狐',level:'SSR',power:'魅惑术',desc:'倾国倾城的九尾妖狐'},
+        {icon:'🦝',name:'干脆面君',level:'R',power:'偷窃高手',desc:'洗东西是我的爱好'},
+        {icon:'🦄',name:'独角兽',level:'UR',power:'彩虹魔法',desc:'传说中的神兽'},
+        {icon:'🦓',name:'斑马骑士',level:'R',power:'迷彩伪装',desc:'黑白条纹就是我的保护色'},
+        {icon:'🦌',name:'九色神鹿',level:'SSR',power:'生命光环',desc:'敦煌壁画的神鹿化身'},
+        {icon:'🦬',name:'牛魔王二代',level:'SR',power:'蛮牛冲撞',desc:'更猛的牛'},
+        {icon:'🐘',name:'象王',level:'SR',power:'象鼻卷物',desc:'陆地上最大的动物'},
+        {icon:'🦣',name:'猛犸象',level:'SSR',power:'冰河时代',desc:'冰河时代的霸主'},
+        {icon:'🦒',name:'长颈鹿侦探',level:'R',power:'千里眼',desc:'站得高看得远'},
+        {icon:'🐺',name:'狼王',level:'SR',power:'狼群召唤',desc:'狼族的领袖'},
+        {icon:'🦮',name:'导盲犬',level:'R',power:'光明指引',desc:'人类的好帮手'},
+        {icon:'🐕‍🦺',name:'搜救犬',level:'SR',power:'生命探测',desc:'灾难中的生命之光'},
+        {icon:'🦩',name:'火烈鸟舞者',level:'SR',power:'火焰之舞',desc:'优雅的粉色舞者'},
+        {icon:'🦜',name:'鹦鹉法师',level:'SR',power:'语言精通',desc:'会说所有语言的法师'},
+        {icon:'🦚',name:'凤凰之子',level:'SSR',power:'开屏光芒',desc:'百鸟朝凤'},
+        {icon:'🦅',name:'雄鹰',level:'SR',power:'鹰眼锁定',desc:'天空的霸主'},
+        {icon:'🦉',name:'猫头鹰智者',level:'SR',power:'智慧之眼',desc:'雅典娜的使者'},
+        {icon:'🦆',name:'唐老丫',level:'R',power:'嘎嘎叫',desc:'很吵但很可爱'},
+        {icon:'🦢',name:'天鹅公主',level:'SR',power:'优雅光环',desc:'芭蕾舞大师'},
+        {icon:'🕊️',name:'和平鸽',level:'R',power:'和平使者',desc:'带来和平的使者'},
+        {icon:'🦅',name:'神雕',level:'UR',power:'载人飞行',desc:'杨过的小伙伴'},
+        {icon:'🐦',name:'愤怒小鸟',level:'N',power:'自爆',desc:'砸猪猪是我的使命'},
+        {icon:'🐧',name:'企鹅船长',level:'R',power:'冰上滑行',desc:'南极洲的滑雪冠军'},
+        {icon:'🦋',name:'梦蝶仙子',level:'SSR',power:'梦境穿梭',desc:'庄周梦蝶，蝶梦庄周'},
+        {icon:'🐛',name:'毛毛虫',level:'N',power:'化茧成蝶',desc:'耐心等待就能蜕变'},
+        {icon:'🐝',name:'蜜蜂战士',level:'R',power:'尾针攻击',desc:'勤劳的小战士'},
+        {icon:'🐞',name:'七星瓢虫',level:'N',power:'幸运星',desc:'带来好运的小虫子'},
+        {icon:'🦗',name:'蟋蟀乐师',level:'N',power:'美妙音乐',desc:'大自然的音乐家'},
+        {icon:'🕷️',name:'蜘蛛侠',level:'SSR',power:'吐丝结网',desc:'友好的邻居英雄'},
+        {icon:'🦂',name:'天蝎刺客',level:'SR',power:'毒尾针',desc:'十二星座之毒王'},
+        {icon:'🦀',name:'蟹老板',level:'R',power:'蟹钳夹击',desc:'爱钱如命的老板'},
+        {icon:'🐙',name:'章鱼博士',level:'SSR',power:'八手操作',desc:'同时写八份作业'},
+        {icon:'🐚',name:'贝壳精灵',level:'N',power:'珍珠制造',desc:'藏着美丽的珍珠'},
+        {icon:'🐠',name:'锦鲤',level:'SSR',power:'转发好运',desc:'转发这条锦鲤'},
+        {icon:'🐟',name:'咸鱼',level:'N',power:'躺平',desc:'人生就是躺平'},
+        {icon:'🐡',name:'河豚武士',level:'R',power:'膨胀防御',desc:'气鼓鼓的很可爱'},
+        {icon:'🦈',name:'鲨鱼霸主',level:'SSR',power:'血腥狂暴',desc:'海洋的顶级掠食者'},
+        {icon:'🐋',name:'鲸鱼歌者',level:'SSR',power:'深海之歌',desc:'地球上最大的歌唱家'},
+        {icon:'🐬',name:'海豚救星',level:'SR',power:'声波定位',desc:'海洋中最聪明的生物'},
+        {icon:'🐊',name:'鳄鱼霸主',level:'SSR',power:'死亡翻滚',desc:'侏罗纪活化石'},
+        {icon:'🐢',name:'龟仙人',level:'SSR',power:'龟派气功',desc:'活了几百年的大师'},
+        {icon:'🦎',name:'壁虎侠',level:'R',power:'飞檐走壁',desc:'墙上的超级英雄'},
+        {icon:'🐍',name:'蛇发女妖',level:'SR',power:'石化凝视',desc:'美杜莎的力量'},
+        {icon:'🦖',name:'霸王龙',level:'UR',power:'霸王咆哮',desc:'史前最强大的掠食者'},
+        {icon:'🦕',name:'腕龙',level:'SSR',power:'高空观察',desc:'脖子最长的恐龙'},
+        {icon:'🐉',name:'东方神龙',level:'UR',power:'呼风唤雨',desc:'传说中的神兽之王'},
+        {icon:'🐲',name:'龙太子',level:'SSR',power:'水元素掌控',desc:'龙王的儿子'},
+        {icon:'👾',name:'太空怪兽',level:'UR',power:'激光眼',desc:'来自外太空的神秘生物'},
+        {icon:'👻',name:'幽灵',level:'R',power:'穿墙',desc:'吓到你了吗'},
+        {icon:'💀',name:'骷髅战士',level:'SR',power:'不死之身',desc:'骷髅兵也有梦想'},
+        {icon:'☠️',name:'海盗船长',level:'SR',power:'宝藏搜索',desc:'杰克船长是我偶像'},
+        {icon:'🤖',name:'机器人管家',level:'SR',power:'万能助手',desc:'你的家务我包了'},
+        {icon:'👽',name:'ET外星人',level:'SSR',power:'心灵感应',desc:'带我回家'},
+        {icon:'🛸',name:'UFO',level:'UR',power:'星际跳跃',desc:'带你遨游宇宙'},
+        {icon:'⭐',name:'星尘精灵',level:'SSR',power:'许愿成真',desc:'对我许愿吧'},
+        {icon:'🌟',name:'北极星',level:'SSR',power:'方向指引',desc:'永远为你指路'},
+        {icon:'💫',name:'流星使者',level:'SR',power:'许愿',desc:'快许愿！'},
+        {icon:'☀️',name:'太阳神',level:'UR',power:'光明普照',desc:'带来光明与温暖'},
+        {icon:'🌙',name:'月神',level:'UR',power:'月光守护',desc:'夜晚的守护神'},
+        {icon:'☁️',name:'云宝宝',level:'N',power:'下雨',desc:'软绵绵的好舒服'},
+        {icon:'⛈️',name:'雷神',level:'SSR',power:'召唤雷电',desc:'托尔是我兄弟'},
+        {icon:'🌈',name:'彩虹桥守护者',level:'SSR',power:'传送门',desc:'彩虹尽头有宝藏'},
+        {icon:'❄️',name:'雪精灵',level:'SR',power:'冰冻术',desc:'let it go~'},
+        {icon:'🔥',name:'火精灵',level:'SR',power:'火焰术',desc:'热情似火就是我'},
+        {icon:'💧',name:'水精灵',level:'SR',power:'水疗术',desc:'上善若水'},
+        {icon:'🌿',name:'草精灵',level:'SR',power:'治愈光环',desc:'大自然的恩赐'},
+        {icon:'⚡',name:'雷精灵',level:'SR',power:'十万伏特',desc:'皮卡丘是我徒弟'},
+        {icon:'🌀',name:'风精灵',level:'SR',power:'龙卷风',desc:'随风奔跑自由是方向'},
+        {icon:'🧚',name:'花仙子',level:'SSR',power:'百花齐放',desc:'春天的使者'},
+        {icon:'🧛',name:'吸血鬼伯爵',level:'SSR',power:'永生',desc:'永生是种诅咒'},
+        {icon:'🧟',name:'丧尸',level:'R',power:'感染',desc:' brains...'},
+        {icon:'🧙',name:'甘道夫',level:'UR',power:'高级魔法',desc:'You shall not pass!'},
+        {icon:'🧝',name:'精灵王子',level:'SSR',power:'箭术大师',desc:'莱格拉斯是我偶像'},
+        {icon:'🧜',name:'美人鱼',level:'SSR',power:'天籁之音',desc:'海的女儿'},
+        {icon:'🧞',name:'灯神',level:'UR',power:'实现三个愿望',desc:'你的愿望是什么'},
+        {icon:'🧚‍♀️',name:'叮当小仙女',level:'SSR',power:'魔法棒',desc:'叮叮铛铛'},
+        {icon:'🦸',name:'超人',level:'UR',power:'全能',desc:'内裤外穿的英雄'},
+        {icon:'🦹',name:'灭霸',level:'UR',power:'响指灭世',desc:'我就是天命'},
+        {icon:'🥷',name:'忍者',level:'SSR',power:'影分身',desc:'来无影去无踪'},
+        {icon:'🤴',name:'白马王子',level:'SR',power:'魅力光环',desc:'帅就一个字'},
+        {icon:'👸',name:'白雪公主',level:'SR',power:'容颜不老',desc:'魔镜魔镜谁最美'},
+        {icon:'🧸',name:'泰迪熊',level:'N',power:'抱抱',desc:'治愈你的心灵'},
+        {icon:'🎃',name:'南瓜头',level:'R',power:'万圣节魔法',desc:'不给糖就捣蛋'},
+        {icon:'🎄',name:'圣诞树精灵',level:'R',power:'礼物派送',desc:'圣诞快乐!'},
+        {icon:'🎅',name:'圣诞老人',level:'SSR',power:'礼物派送',desc:'驯鹿们冲啊!'},
+        {icon:'🤡',name:'小丑',level:'SR',power:'制造快乐',desc:'Why so serious?'},
+        {icon:'🎭',name:'变脸大师',level:'SR',power:'千面郎君',desc:'千变万化'},
+        {icon:'🎪',name:'马戏团长',level:'R',power:'驯兽术',desc:'精彩的马戏表演'},
+        {icon:'🎨',name:'神笔马良',level:'SSR',power:'画物成真',desc:'画什么变什么'},
+        {icon:'🎵',name:'音乐精灵',level:'SR',power:'治愈之歌',desc:'音乐是我的灵魂'},
+        {icon:'🎮',name:'游戏王',level:'SR',power:'时间暂停',desc:'打游戏时时间静止'},
+        {icon:'🎲',name:'赌神',level:'SR',power:'逢赌必赢',desc:'梭哈！'},
+        {icon:'🎯',name:'神射手',level:'SR',power:'百发百中',desc:'例无虚发'},
+        {icon:'🏆',name:'冠军之心',level:'SSR',power:'永不言弃',desc:'我们是冠军!'},
+        {icon:'🗡️',name:'暗影刺客',level:'SSR',power:'背刺',desc:'藏在影子中的杀手'},
+        {icon:'🛡️',name:'守护骑士',level:'SR',power:'盾墙',desc:'由我来守护你'},
+        {icon:'⚔️',name:'剑圣',level:'UR',power:'万剑归宗',desc:'剑道的极致'},
+        {icon:'🪄',name:'魔法学徒',level:'R',power:'初级魔法',desc:'正在学习中'},
+        {icon:'📚',name:'书圣',level:'SR',power:'知识就是力量',desc:'书中自有黄金屋'},
+        {icon:'🔮',name:'预言家',level:'SSR',power:'预知未来',desc:'我看到了你的未来'},
+        {icon:'🪬',name:'驱魔师',level:'SR',power:'净化',desc:'邪恶退散'},
+        {icon:'⚗️',name:'炼金术师',level:'SSR',power:'点石成金',desc:'等价交换'},
+        {icon:'🧪',name:'化学家',level:'R',power:'制造药剂',desc:'疯狂的科学家'},
+        {icon:'🔭',name:'天文学家',level:'SR',power:'观星术',desc:'仰望星空'},
+        {icon:'🔬',name:'生物学家',level:'R',power:'基因编辑',desc:'生命的密码'},
+        {icon:'💊',name:'神医',level:'SSR',power:'起死回生',desc:'华佗再世'},
+        {icon:'🩺',name:'南丁格尔',level:'SR',power:'治疗光环',desc:'白衣天使'},
+        {icon:'🚑',name:'救护车',level:'R',power:'急救',desc:'时间就是生命'},
+        {icon:'🚒',name:'消防车',level:'R',power:'灭火',desc:'逆行英雄'},
+        {icon:'🚓',name:'警车',level:'R',power:'正义追击',desc:'坏人哪里跑'},
+        {icon:'✈️',name:'飞行员',level:'SR',power:'直冲云霄',desc:'冲上云霄'},
+        {icon:'🚀',name:'宇航员',level:'SSR',power:'太空漫步',desc:'这是我的一小步'},
+        {icon:'🛸',name:'UFO驾驶员',level:'UR',power:'空间跳跃',desc:'51区欢迎你'},
+        {icon:'🚂',name:'火车头',level:'R',power:'勇往直前',desc:'蒸汽时代的浪漫'},
+        {icon:'🚗',name:'赛车手',level:'SR',power:'极限漂移',desc:'速度与激情'},
+        {icon:'🏎️',name:'F1车神',level:'SSR',power:'极速',desc:' Ayrton Senna'},
+        {icon:'🚌',name:'老司机',level:'R',power:'开车不翻车',desc:'这不是去幼儿园的车'},
+        {icon:'⚓',name:'海贼王',level:'SSR',power:'征服大海',desc:'我是要成为海贼王的男人'},
+        {icon:'🚢',name:'泰坦尼克号',level:'SSR',power:'永不沉没',desc:'You jump I jump'},
+        {icon:'⛵',name:'航海家',level:'SR',power:'乘风破浪',desc:'哥伦布是我前辈'},
+        {icon:'🏝️',name:'岛主',level:'SR',power:'自给自足',desc:'桃花岛黄药师'},
+        {icon:'🏔️',name:'山神',level:'SSR',power:'地动山摇',desc:'巍巍昆仑'},
+        {icon:'🌋',name:'火山之神',level:'SSR',power:'岩浆喷发',desc:'愤怒的大地'},
+        {icon:'🏜️',name:'沙漠之鹰',level:'SR',power:'耐热',desc:'撒哈拉的霸主'},
+        {icon:'❄️',name:'冰雪女王',level:'UR',power:'冰封世界',desc:'Elsa女王'},
+        {icon:'🌊',name:'海皇波塞冬',level:'UR',power:'海啸',desc:'海洋的主人'},
+        {icon:'🌪️',name:'风王',level:'SSR',power:'飓风',desc:'狂风暴雨'}
+    ];
+    pets.forEach(p => petDatabase[p.icon] = {name:p.name,level:p.level,power:p.power,desc:p.desc,category:'pet'});
+})();
+
+// ========== 50个军事武器卡片 ==========
+(function() {
+    const weapons = [
+        {icon:'🔫',name:'沙漠之鹰',level:'R',power:'停止作用',desc:'手枪之王'},
+        {icon:'🔫',name:'AK47',level:'SR',power:'可靠性',desc:'步枪之王，皮实耐用'},
+        {icon:'🔫',name:'M4A1',level:'SR',power:'精准射击',desc:'特种兵标配'},
+        {icon:'🔫',name:'AWM狙击枪',level:'SSR',power:'一枪毙命',desc:'千里之外取敌首级'},
+        {icon:'🔫',name:'巴雷特',level:'SSR',power:'反器材',desc:'能打穿装甲车'},
+        {icon:'🔫',name:'加特林',level:'SSR',power:'火力压制',desc:'哒哒哒哒冒蓝火'},
+        {icon:'🔫',name:'汤姆森冲锋枪',level:'R',power:'芝加哥打字机',desc:'黑帮最爱'},
+        {icon:'🔫',name:'UZI',level:'R',power:'高射速',desc:'乌兹，永远滴神'},
+        {icon:'🔫',name:'P90',level:'SR',power:'高载弹',desc:'rush B!'},
+        {icon:'🔫',name:'散弹枪',level:'R',power:'近距离伤害',desc:'喷子面前人人平等'},
+        {icon:'🗡️',name:'沙漠军刀',level:'R',power:'利刃',desc:'锋利无比'},
+        {icon:'⚔️',name:'武士刀',level:'SR',power:'居合斩',desc:'村正妖刀'},
+        {icon:'🗡️',name:'匕首',level:'N',power:'背刺',desc:'阴人神器'},
+        {icon:'🔪',name:'厨房菜刀',level:'N',power:'切菜',desc:'能用就行'},
+        {icon:'🪓',name:'战斧',level:'SR',power:'劈砍',desc:'野蛮人的武器'},
+        {icon:'⛏️',name:'矿镐',level:'N',power:'挖矿',desc:'我的世界'},
+        {icon:'🔨',name:'雷神之锤',level:'UR',power:'召唤闪电',desc:'喵喵锤'},
+        {icon:'🛠️',name:'工兵铲',level:'R',power:'多功能',desc:'中国军铲无敌'},
+        {icon:'🏹',name:'后羿弓',level:'UR',power:'射日',desc:'射下九个太阳'},
+        {icon:'🏹',name:'丘比特之箭',level:'SR',power:'爱情',desc:'射中就会相爱'},
+        {icon:'🎯',name:'十字弩',level:'SR',power:'静音',desc:'暗杀神器'},
+        {icon:'💣',name:'手榴弹',level:'R',power:'范围伤害',desc:'Fire in the hole!'},
+        {icon:'💣',name:'C4炸药',level:'SR',power:'爆破',desc:'拆弹还有10秒'},
+        {icon:'💣',name:'原子弹',level:'UR',power:'蘑菇云',desc:'小男孩和胖子'},
+        {icon:'💣',name:'氢弹',level:'UR',power:'末日审判',desc:'比原子弹还厉害'},
+        {icon:'💥',name:'TNT',level:'R',power:'爆炸',desc:'就是个炸药包'},
+        {icon:'🚀',name:'火箭筒',level:'SR',power:'破甲',desc:'RPG!'},
+        {icon:'🚀',name:'导弹',level:'SSR',power:'精确打击',desc:'东风快递，使命必达'},
+        {icon:'☢️',name:'核弹头',level:'UR',power:'核威慑',desc:'大国重器'},
+        {icon:'🛩️',name:'武装直升机',level:'SSR',power:'空中火力',desc:'阿帕奇'},
+        {icon:'✈️',name:'隐形战机',level:'UR',power:'隐身',desc:'F22猛禽'},
+        {icon:'✈️',name:'轰炸机',level:'SSR',power:'地毯式轰炸',desc:'B52同温层堡垒'},
+        {icon:'🚁',name:'运输直升机',level:'R',power:'投送',desc:'黑鹰坠落'},
+        {icon:'🛸',name:'无人侦察机',level:'SR',power:'情报',desc:'察打一体'},
+        {icon:'🛳️',name:'驱逐舰',level:'SSR',power:'防空反导',desc:'055大驱'},
+        {icon:'🚢',name:'航空母舰',level:'UR',power:'舰载机',desc:'海上霸主'},
+        {icon:'⚓',name:'核潜艇',level:'UR',power:'二次核打击',desc:'深海幽灵'},
+        {icon:'🚢',name:'战列舰',level:'SR',power:'大舰巨炮',desc:'大和号'},
+        {icon:'🚀',name:'洲际导弹',level:'UR',power:'全球打击',desc:'真理在射程之内'},
+        {icon:'🛡️',name:'防弹衣',level:'R',power:'减伤',desc:'能挡子弹'},
+        {icon:'🎖️',name:'防弹头盔',level:'R',power:'保护头部',desc:'一级头'},
+        {icon:'🥽',name:'夜视仪',level:'R',power:'夜间作战',desc:'黑夜如白昼'},
+        {icon:'📡',name:'雷达',level:'SR',power:'探测',desc:'发现敌人'},
+        {icon:'🗼',name:'防空导弹',level:'SR',power:'拦截',desc:'爱国者'},
+        {icon:'🔋',name:'电磁炮',level:'UR',power:'动能武器',desc:'未来武器'},
+        {icon:'⚡',name:'激光武器',level:'UR',power:'光速打击',desc:'指哪打哪'},
+        {icon:'🧪',name:'生化武器',level:'UR',power:'生化危机',desc:'日内瓦公约禁用'},
+        {icon:'☠️',name:'毒气弹',level:'SSR',power:'毒气',desc:'违反国际法'},
+        {icon:'🔥',name:'喷火器',level:'SR',power:'焚烧',desc:'烧烤大师'},
+        {icon:'💉',name:'麻醉针',level:'R',power:'麻醉',desc:'睡吧睡吧'}
+    ];
+    weapons.forEach(w => weaponDatabase[w.icon + w.name] = {name:w.name,level:w.level,power:w.power,desc:w.desc,category:'weapon'});
+})();
+
+// ========== 50个稀奇宝物卡片 ==========
+(function() {
+    const treasures = [
+        {icon:'💎',name:'钻石',level:'SR',power:'永恒',desc:'钻石恒久远，一颗永流传'},
+        {icon:'💎',name:'海洋之心',level:'UR',power:'真爱',desc:'泰坦尼克号的项链'},
+        {icon:'💍',name:'魔戒',level:'UR',power:'统治世界',desc:'至尊魔戒'},
+        {icon:'👑',name:'王冠',level:'SSR',power:'王权',desc:'国王的象征'},
+        {icon:'🏆',name:'大力神杯',level:'SSR',power:'足球之魂',desc:'世界杯冠军'},
+        {icon:'🥇',name:'奥运金牌',level:'SR',power:'冠军荣耀',desc:'更高更快更强'},
+        {icon:'🎖️',name:'军功章',level:'R',power:'荣誉',desc:'战士的荣耀'},
+        {icon:'⭐',name:'七龙珠',level:'UR',power:'召唤神龙',desc:'说出你的愿望'},
+        {icon:'🌟',name:'贤者之石',level:'UR',power:'长生不老',desc:'炼金术的极致'},
+        {icon:'🔮',name:'水晶球',level:'SR',power:'预言',desc:'吉普赛的神秘道具'},
+        {icon:'📿',name:'佛珠',level:'SR',power:'静心',desc:'阿弥陀佛'},
+        {icon:'🧿',name:'邪眼',level:'R',power:'辟邪',desc:'土耳其护身符'},
+        {icon:'☯️',name:'太极图',level:'SSR',power:'阴阳平衡',desc:'道家至宝'},
+        {icon:'🕉️',name:'曼陀罗',level:'SR',power:'冥想',desc:'藏传佛教至宝'},
+        {icon:'☸️',name:'法轮',level:'SR',power:'普度众生',desc:'佛法无边'},
+        {icon:'✝️',name:'圣杯',level:'UR',power:'永生',desc:'耶稣的鲜血'},
+        {icon:'🔯',name:'所罗门钥匙',level:'SSR',power:'召唤恶魔',desc:'黑魔法书'},
+        {icon:'☪️',name:'新月',level:'SR',power:'信仰',desc:'伊斯兰圣物'},
+        {icon:'🕎',name:'光明节灯台',level:'R',power:'光明',desc:'犹太教圣物'},
+        {icon:'🪬',name:'法蒂玛之手',level:'R',power:'护佑',desc:'抵挡邪恶之眼'},
+        {icon:'📜',name:'死海古卷',level:'SSR',power:'古老智慧',desc:'记载失落的知识'},
+        {icon:'📖',name:'死灵之书',level:'UR',power:'召唤古神',desc:'克苏鲁神话'},
+        {icon:'🗺️',name:'藏宝图',level:'SR',power:'找到宝藏',desc:'X标记的位置'},
+        {icon:'🧭',name:'指南针',level:'R',power:'方向',desc:'永远指向宝藏'},
+        {icon:'🗝️',name:'金钥匙',level:'SR',power:'开门',desc:'能开任何锁'},
+        {icon:'🪙',name:'金币',level:'N',power:'买买买',desc:'有钱能使鬼推磨'},
+        {icon:'🪙',name:'比特币',level:'R',power:'暴富',desc:'一币一嫩模'},
+        {icon:'📦',name:'潘多拉魔盒',level:'UR',power:'释放灾难',desc:'希望还在盒底'},
+        {icon:'🃏',name:'塔罗牌',level:'SR',power:'占卜命运',desc:'大阿卡那'},
+        {icon:'🎴',name:'扑克牌王',level:'R',power:'同花顺',desc:'皇家同花顺'},
+        {icon:'🧩',name:'拼图碎片',level:'N',power:'还原真相',desc:'最后一块'},
+        {icon:'🔱',name:'三叉戟',level:'UR',power:'掌控海洋',desc:'波塞冬的武器'},
+        {icon:'🪶',name:'凤凰羽毛',level:'SSR',power:'复活',desc:'涅槃的力量'},
+        {icon:'🦷',name:'龙牙',level:'SSR',power:'召唤骷髅兵',desc:'种下去长战士'},
+        {icon:'🧪',name:'长生不老药',level:'UR',power:'永生',desc:'秦始皇苦苦寻找'},
+        {icon:'🍎',name:'金苹果',level:'SSR',power:'最美女神',desc:'引发特洛伊战争'},
+        {icon:'🫀',name:'贤者之心',level:'UR',power:'无限魔力',desc:'法师的终极追求'},
+        {icon:'🧠',name:'智慧之脑',level:'SSR',power:'全知全能',desc:'你无所不知'},
+        {icon:'👁️',name:'全视之眼',level:'SSR',power:'看透一切',desc:'共济会的象征'},
+        {icon:'👂',name:'顺风耳',level:'R',power:'偷听',desc:'隔墙有耳'},
+        {icon:'👃',name:'嗅觉强化',level:'N',power:'追踪',desc:'比狗还灵'},
+        {icon:'👅',name:'语言精通',level:'R',power:'会说所有话',desc:'翻译官'},
+        {icon:'🤲',name:'上帝之手',level:'SSR',power:'奇迹',desc:'马拉多纳的手'},
+        {icon:'🦶',name:'飞毛腿',level:'R',power:'极速',desc:'跑得比博尔特快'},
+        {icon:'💪',name:'肌肉强化',level:'R',power:'怪力',desc:'肌肉猛男'},
+        {icon:'🧠',name:'最强大脑',level:'SR',power:'过目不忘',desc:'一目十行'},
+        {icon:'❤️',name:'魅力光环',level:'SR',power:'万人迷',desc:'人见人爱'},
+        {icon:'🩸',name:'神圣之血',level:'UR',power:'神之血统',desc:'神的血液'},
+        {icon:'✨',name:'许愿石',level:'SSR',power:'许愿',desc:'许下心愿吧'},
+        {icon:'🌈',name:'彩虹桥钥匙',level:'UR',power:'彩虹传送',desc:'前往阿斯加德'}
+    ];
+    treasures.forEach(t => treasureDatabase[t.icon + t.name] = {name:t.name,level:t.level,power:t.power,desc:t.desc,category:'treasure'});
+})();
 
 const levelColors = { 'N': '#a8a8a8', 'R': '#3498db', 'SR': '#9b59b6', 'SSR': '#e74c3c', 'UR': '#ffd700' };
 const levelNames = { 'N': '普通', 'R': '稀有', 'SR': '史诗', 'SSR': '传说', 'UR': '限定' };
-const petIcons = Object.keys(petDatabase);
+const categoryNames = { 'pet': '🐾 萌宠', 'weapon': '⚔️ 武器', 'treasure': '💎 宝物' };
+
+const allCards = {};
+Object.assign(allCards, petDatabase, weaponDatabase, treasureDatabase);
+const allCardKeys = Object.keys(allCards);
+
+const petKeys = Object.keys(petDatabase);
+const weaponKeys = Object.keys(weaponDatabase);
+const treasureKeys = Object.keys(treasureDatabase);
+
+const chestPools = {
+    0: petKeys,
+    1: [...petKeys, ...weaponKeys],
+    2: [...petKeys, ...weaponKeys, ...treasureKeys]
+};
+
+const chestNames = ['🐾 萌宠宝箱', '⚔️ 武器宝箱', '💎 宝物宝箱'];
 let totalLevels = 20;
 
 const grandPrizes = [
@@ -1011,7 +1287,7 @@ function getAttendanceData(id, totalLevels) {
 function saveAttendanceData(id, dataArray) { localStorage.setItem(id, JSON.stringify(dataArray)); }
 
 function resetStudentData() {
-    if (confirm("⚠️ 确定要清空该同学的星际闯关、积分、宝箱、萌宠图鉴和终极大奖记录吗？\n（此操作不可恢复）")) {
+    if (confirm("⚠️ 确定要清空该同学的星际闯关、积分、宝箱、图鉴和终极大奖记录吗？\n（此操作不可恢复）")) {
         localStorage.removeItem(currentStudentId);
         localStorage.removeItem(currentStudentId + '_grandPrize');
         localStorage.removeItem(currentStudentId + '_petCollection');
@@ -1177,37 +1453,55 @@ function updateAllChestsUI(records) {
             if(!chestBox) return;
             let isPerfect = true;
             for(let c = idx - 3; c <= idx; c++) { if(!records[c] || !records[c].attended) isPerfect = false; }
+            
+            const chestNum = Math.floor(idx / 4);
+            const poolIndex = chestNum % 3;
+            const currentPool = chestPools[poolIndex];
+            const chestTitle = chestNames[poolIndex];
 
             if(isPerfect) {
                 if(records[idx].chestOpened) {
-                    const petIcon = records[idx].petIcon || petIcons[Math.floor(Math.random() * petIcons.length)];
-                    if(!records[idx].petIcon) { records[idx].petIcon = petIcon; saveAttendanceData(currentStudentId, records); }
-                    chestBox.innerHTML = petIcon; chestBox.className = 'treasure-chest-box chest-opened'; chestBox.title = `点击查看萌宠：${petIcon}`; 
-                    chestBox.onclick = () => showPetCardFromIcon(petIcon, idx);
+                    const cardKey = records[idx].petIcon || currentPool[Math.floor(Math.random() * currentPool.length)];
+                    if(!records[idx].petIcon) { 
+                        records[idx].petIcon = cardKey; 
+                        addCardToCollection(cardKey);
+                        saveAttendanceData(currentStudentId, records); 
+                    }
+                    const cardData = allCards[cardKey];
+                    const displayIcon = cardKey.split(/[a-zA-Z]/)[0] || cardKey.substring(0, 2);
+                    chestBox.innerHTML = displayIcon; 
+                    chestBox.className = 'treasure-chest-box chest-opened'; 
+                    chestBox.title = `${chestTitle}：${cardData.name}`; 
+                    chestBox.onclick = () => showPetCardFromIcon(cardKey, idx);
                 } else {
-                    chestBox.innerHTML = '🧰'; chestBox.className = 'treasure-chest-box chest-unlockable'; chestBox.title = "点击开启月全勤宝箱！";
+                    chestBox.innerHTML = '🧰'; chestBox.className = 'treasure-chest-box chest-unlockable'; 
+                    chestBox.title = `点击开启${chestTitle}！`;
                     chestBox.onclick = () => {
                         records[idx].chestOpened = true; records[idx].score += 5;
-                        const petIcon = petIcons[Math.floor(Math.random() * petIcons.length)];
-                        records[idx].petIcon = petIcon;
+                        const cardKey = currentPool[Math.floor(Math.random() * currentPool.length)];
+                        records[idx].petIcon = cardKey;
+                        addCardToCollection(cardKey);
                         saveAttendanceData(currentStudentId, records);
                         updateAllChestsUI(records);
                         row.querySelector('.score-display').innerText = records[idx].score;
                         const starsDisplay = document.getElementById(`stars-${idx}`);
                         if(starsDisplay) starsDisplay.innerHTML = '⭐'.repeat(Math.min(records[idx].score, 5)); 
                         
-                        showPetCard(petIcon, idx);
+                        showPetCard(cardKey, idx);
                         if(document.getElementById('reportPanel').style.display === 'block') generateReportText();
                     };
                 }
             } else {
-                chestBox.innerHTML = '🔒'; chestBox.className = 'treasure-chest-box chest-locked'; chestBox.title = "连续点亮4节课即可开启宝箱！"; chestBox.onclick = null;
+                chestBox.innerHTML = '🔒'; chestBox.className = 'treasure-chest-box chest-locked'; 
+                chestBox.title = `${chestTitle}：连续点亮4节课即可开启！`; 
+                chestBox.onclick = null;
             }
         }
     });
 }
 
 function renderMap() {
+    syncOpenedChestsToCollection();
     const container = document.getElementById('mapContainer'); container.innerHTML = '';
     const courseList = courseData[currentStudentCourseType] || Array.from({length:20}, (_,i)=>({title:`第${i+1}关`}));
     totalLevels = courseList.length; 
@@ -1322,22 +1616,21 @@ function openGrandPrize(records) {
 
 function closePrizeModal() { document.getElementById('prizeModal').style.display = 'none'; }
 
-function showPetCard(petIcon, weekIndex = -1) {
-    const petData = petDatabase[petIcon] || { name: '神秘萌宠', level: 'R', power: '未知能力', desc: '来自遥远星系的神秘访客' };
-    const levelColor = levelColors[petData.level] || '#ffd700'; const levelName = levelNames[petData.level] || '稀有';
+function showPetCard(cardKey, weekIndex = -1) {
+    const cardData = allCards[cardKey] || { name: '神秘卡片', level: 'R', power: '未知能力', desc: '来自遥远星系的神秘访客', category: 'pet' };
+    const levelColor = levelColors[cardData.level] || '#ffd700'; const levelName = levelNames[cardData.level] || '稀有';
     const modal = document.getElementById('petCardModal'); const card = document.getElementById('petCard');
     
-    document.getElementById('petCardIcon').textContent = petIcon;
-    document.getElementById('petCardName').textContent = petData.name;
-    document.getElementById('petCardLevel').textContent = `${petData.level} ${levelName}`;
+    const displayIcon = cardKey.split(/[a-zA-Z]/)[0] || cardKey.substring(0, 2);
+    const categoryName = categoryNames[cardData.category] || '';
+    
+    document.getElementById('petCardIcon').textContent = displayIcon;
+    document.getElementById('petCardName').textContent = cardData.name;
+    document.getElementById('petCardLevel').textContent = `${cardData.level} ${levelName} | ${categoryName}`;
     document.getElementById('petCardLevel').style.color = levelColor;
     document.getElementById('petCardLevel').style.borderColor = levelColor;
-    document.getElementById('petCardPower').textContent = petData.power;
-    document.getElementById('petCardDesc').textContent = petData.desc;
-    
-    const iconWrapper = document.getElementById('petCardIcon');
-    if (petData.img) iconWrapper.innerHTML = `<img src="${petData.img}" style="width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 0 20px ${levelColor});">`;
-    else iconWrapper.textContent = petIcon;
+    document.getElementById('petCardPower').textContent = cardData.power;
+    document.getElementById('petCardDesc').textContent = cardData.desc;
     
     card.style.setProperty('--pet-color', levelColor);
     document.getElementById('currentPetWeek').value = weekIndex;
@@ -1354,7 +1647,16 @@ function showPetCard(petIcon, weekIndex = -1) {
 
 function getPetCollectionData() { const data = localStorage.getItem(currentStudentId + '_petCollection'); return data ? JSON.parse(data) : {}; }
 function savePetCollectionData(petCollection) { localStorage.setItem(currentStudentId + '_petCollection', JSON.stringify(petCollection)); }
-function addPetToCollection(petIcon) { const collection = getPetCollectionData(); collection[petIcon] = (collection[petIcon] || 0) + 1; savePetCollectionData(collection); }
+function addCardToCollection(cardKey) { const collection = getPetCollectionData(); collection[cardKey] = (collection[cardKey] || 0) + 1; savePetCollectionData(collection); }
+
+function syncOpenedChestsToCollection() {
+    const records = getAttendanceData(currentStudentId, totalLevels);
+    records.forEach((r, idx) => {
+        if(r.chestOpened && r.petIcon) {
+            addCardToCollection(r.petIcon);
+        }
+    });
+}
 
 function closePetCard() {
     const petIcon = document.getElementById('petCardIcon').textContent;
@@ -1362,33 +1664,75 @@ function closePetCard() {
     showToast('🎉 萌宠已收入图鉴！');
 }
 
-function showPetCollection() {
-    const modal = document.getElementById('collectionModal'); const grid = document.getElementById('collectionGrid'); const stats = document.getElementById('collectionStats');
-    const petCounts = getPetCollectionData(); const collectedTypes = Object.keys(petCounts).length;
-    stats.textContent = `已收集：${collectedTypes}/${petIcons.length}`;
+let currentFilter = 'all';
+
+function renderCollectionGrid(filter = 'all') {
+    const grid = document.getElementById('collectionGrid');
+    const stats = document.getElementById('collectionStats');
+    const cardCounts = getPetCollectionData();
+    const collectedTypes = Object.keys(cardCounts).length;
+    
+    stats.textContent = `已收集：${collectedTypes}/${allCardKeys.length}`;
     grid.innerHTML = '';
     
-    petIcons.forEach(petIcon => {
-        const petData = petDatabase[petIcon]; const count = petCounts[petIcon] || 0; const isCollected = count > 0;
-        const levelColor = levelColors[petData.level] || '#fff';
-        const iconDisplay = petData.img ? `<img src="${petData.img}" style="width: 40px; height: 40px; object-fit: contain;">` : petIcon;
-        
-        const item = document.createElement('div'); item.className = `pet-collection-item ${isCollected ? '' : 'locked'}`;
-        
-        if(isCollected) {
-            item.innerHTML = `<div class="pet-collection-icon">${iconDisplay}</div><div class="pet-collection-name">${petData.name}</div><div class="pet-collection-level" style="background: ${levelColor}; color: #fff;">${petData.level}</div>${count > 1 ? `<div style="font-size: 0.6em; color: var(--gold); font-weight: bold; margin-top: 3px;">x${count}</div>` : ''}`;
-            item.onclick = () => showPetCard(petIcon, -1);
-        } else {
-            item.innerHTML = `<div class="pet-collection-icon">❓</div><div class="pet-collection-name">???</div><div class="locked-overlay">🔒</div>`;
-        }
-        grid.appendChild(item);
+    document.querySelectorAll('.collection-tab').forEach(tab => {
+        tab.classList.remove('active');
+        if(tab.onclick.toString().includes(filter)) tab.classList.add('active');
     });
+    
+    const categories = ['pet', 'weapon', 'treasure'];
+    categories.forEach(cat => {
+        if(filter !== 'all' && filter !== cat) return;
+        
+        const catKeys = cat === 'pet' ? petKeys : (cat === 'weapon' ? weaponKeys : treasureKeys);
+        
+        const catTitle = document.createElement('div');
+        catTitle.className = 'collection-category-title';
+        catTitle.textContent = `${categoryNames[cat]} (${catKeys.filter(k => cardCounts[k]).length}/${catKeys.length})`;
+        grid.appendChild(catTitle);
+        
+        const categoryGrid = document.createElement('div');
+        categoryGrid.style.display = 'grid';
+        categoryGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(90px, 1fr))';
+        categoryGrid.style.gap = '10px';
+        
+        catKeys.forEach(cardKey => {
+            const cardData = allCards[cardKey];
+            const count = cardCounts[cardKey] || 0;
+            const isCollected = count > 0;
+            const levelColor = levelColors[cardData.level] || '#fff';
+            const displayIcon = cardKey.split(/[a-zA-Z]/)[0] || cardKey.substring(0, 2);
+            
+            const item = document.createElement('div');
+            item.className = `pet-collection-item ${isCollected ? '' : 'locked'}`;
+            
+            if(isCollected) {
+                item.innerHTML = `<div class="pet-collection-icon">${displayIcon}</div><div class="pet-collection-name">${cardData.name}</div><div class="pet-collection-level" style="background: ${levelColor}; color: #fff; font-size: 0.7em;">${cardData.level}</div>${count > 1 ? `<div style="font-size: 0.6em; color: var(--gold); font-weight: bold; margin-top: 3px;">x${count}</div>` : ''}`;
+                item.onclick = () => showPetCard(cardKey, -1);
+            } else {
+                item.innerHTML = `<div class="pet-collection-icon">❓</div><div class="pet-collection-name">???</div><div class="locked-overlay">🔒</div>`;
+            }
+            categoryGrid.appendChild(item);
+        });
+        
+        grid.appendChild(categoryGrid);
+    });
+}
+
+function filterCollection(cat) {
+    currentFilter = cat;
+    renderCollectionGrid(cat);
+}
+
+function showPetCollection() {
+    const modal = document.getElementById('collectionModal');
+    renderCollectionGrid(currentFilter);
     modal.style.display = 'flex';
 }
 
 function closeCollectionModal() { document.getElementById('collectionModal').style.display = 'none'; }
 function openCollectionFromCard() { document.getElementById('petCardModal').style.display = 'none'; setTimeout(() => showPetCollection(), 100); }
-function showPetCardFromIcon(petIcon, weekIndex = -1) { if(petIcon && petDatabase[petIcon]) { showPetCard(petIcon, weekIndex); } }
+function showPetCardFromIcon(petIcon, weekIndex = -1) { if(petIcon && allCards[petIcon]) { showPetCard(petIcon, weekIndex); } }
 
 function rerollPet() {
     const weekIndex = parseInt(document.getElementById('currentPetWeek').value);
@@ -1409,15 +1753,20 @@ function rerollPet() {
         }
     }
     
-    const currentPet = records[weekIndex].petIcon;
-    let availablePets = petIcons.filter(p => p !== currentPet);
-    if(availablePets.length === 0) availablePets = petIcons; 
+    const chestNum = Math.floor(weekIndex / 4);
+    const poolIndex = chestNum % 3;
+    const currentPool = chestPools[poolIndex];
     
-    const newPetIcon = availablePets[Math.floor(Math.random() * availablePets.length)];
-    records[weekIndex].petIcon = newPetIcon;
+    const currentCard = records[weekIndex].petIcon;
+    let availableCards = currentPool.filter(p => p !== currentCard);
+    if(availableCards.length === 0) availableCards = currentPool; 
+    
+    const newCardKey = availableCards[Math.floor(Math.random() * availableCards.length)];
+    records[weekIndex].petIcon = newCardKey;
+    addCardToCollection(newCardKey);
     
     saveAttendanceData(currentStudentId, records); renderMap(); showToast('🔄 消耗3总积分重抽成功！');
-    setTimeout(() => showPetCard(newPetIcon, weekIndex), 300);
+    setTimeout(() => showPetCard(newCardKey, weekIndex), 300);
 }
 
 window.addEventListener('resize', () => { if (document.getElementById('mapModal').style.display === 'flex') drawTreasurePath(); });
