@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能台灯 - SPIKE编程课程</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES (THEME)
+           Pastel Geometry Style - 暖黄配色
+           =========================================== */
+        :root {
+            /* Colors - 暖黄配色 */
+            --bg-primary: #f5e6c8;
+            --bg-secondary: #e8d9b8;
+            --card-bg: #faf9f7;
+            --pill-pink: #f0b4d4;
+            --pill-mint: #a8d4c4;
+            --pill-sage: #5a7c6a;
+            --pill-lavender: #9b8dc4;
+            --pill-violet: #7c6aad;
+            --pill-yellow: #f4d03f;
+            --pill-orange: #f5b041;
+            --text-primary: #1a1a1a;
+            --text-secondary: #5a5a5a;
+            --text-muted: #8a8a8a;
+            --accent-tech: #b7791f;
+
+            /* Typography */
+            --font-display: 'Plus Jakarta Sans', sans-serif;
+            --title-size: clamp(1.75rem, 4.5vw, 3rem);
+            --h2-size: clamp(1.5rem, 3.5vw, 2.25rem);
+            --h3-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            --body-size: clamp(0.85rem, 1.5vw, 1.1rem);
+            --small-size: clamp(0.75rem, 1.2vw, 0.95rem);
+
+            /* Spacing */
+            --slide-padding: clamp(1.5rem, 4vw, 3rem);
+            --content-gap: clamp(1rem, 2.5vw, 2rem);
+            --element-gap: clamp(0.5rem, 1.5vw, 1rem);
+
+            /* Animation */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.6s;
+        }
+
+        /* ===========================================
+           VIEWPORT FITTING: MANDATORY BASE STYLES
+           =========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            font-family: var(--font-display);
+        }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+        }
+
+        .card {
+            width: min(90vw, 1000px);
+            max-height: min(85vh, 750px);
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            margin: 0;
+        }
+
+        .card-body {
+            flex: 1;
+            padding: var(--slide-padding);
+            display: flex;
+            flex-direction: column;
+            gap: var(--content-gap);
+            overflow-y: auto;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: var(--title-size);
+            font-weight: 800;
+            color: var(--accent-tech);
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: var(--h2-size);
+            font-weight: 700;
+            color: var(--accent-tech);
+            line-height: 1.3;
+        }
+
+        h3 {
+            font-size: var(--h3-size);
+            font-weight: 700;
+            color: var(--accent-tech);
+            line-height: 1.3;
+        }
+
+        p, li {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Lists */
+        .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--element-gap);
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 1.5em;
+        }
+
+        .bullet-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5em;
+            width: 8px;
+            height: 8px;
+            background: var(--pill-yellow);
+            border-radius: 50%;
+        }
+
+        .numbered-list {
+            list-style: none;
+            counter-reset: item;
+            display: flex;
+            flex-direction: column;
+            gap: var(--element-gap);
+        }
+
+        .numbered-list li {
+            position: relative;
+            padding-left: 2.5em;
+        }
+
+        .numbered-list li::before {
+            counter-increment: item;
+            content: counter(item);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1.8em;
+            height: 1.8em;
+            background: var(--pill-lavender);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+
+        /* Feature cards grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+            gap: var(--element-gap);
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(244, 208, 63, 0.15) 0%, rgba(245, 176, 65, 0.1) 100%);
+            border-radius: 16px;
+            padding: clamp(1rem, 2vw, 1.5rem);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            border-color: var(--pill-yellow);
+            transform: translateY(-4px);
+        }
+
+        .feature-card .emoji {
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .feature-card h4 {
+            font-size: var(--h3-size);
+            font-weight: 700;
+            color: var(--accent-tech);
+            margin-bottom: 0.3rem;
+        }
+
+        .feature-card p {
+            font-size: var(--small-size);
+            color: var(--text-muted);
+        }
+
+        /* Pills decoration */
+        .pills {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 16px;
+            z-index: 10;
+        }
+
+        .pill {
+            width: 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .pill:nth-child(1) { height: 35px; background: var(--pill-pink); }
+        .pill:nth-child(2) { height: 50px; background: var(--pill-yellow); }
+        .pill:nth-child(3) { height: 70px; background: var(--pill-orange); }
+        .pill:nth-child(4) { height: 50px; background: var(--pill-lavender); }
+        .pill:nth-child(5) { height: 35px; background: var(--pill-mint); }
+
+        /* Quote/Riddle box */
+        .riddle-box {
+            background: linear-gradient(135deg, rgba(244, 208, 63, 0.2) 0%, rgba(244, 208, 63, 0.05) 100%);
+            border-left: 4px solid var(--pill-yellow);
+            border-radius: 0 16px 16px 0;
+            padding: clamp(1rem, 2.5vw, 1.5rem);
+            margin: var(--element-gap) 0;
+        }
+
+        .riddle-box p {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.8;
+        }
+
+        /* Info tag */
+        .info-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--pill-yellow);
+            color: white;
+            border-radius: 20px;
+            font-size: var(--small-size);
+            font-weight: 600;
+            margin-bottom: var(--element-gap);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--pill-yellow), var(--pill-orange));
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* Navigation dots */
+        .nav-dots {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(183, 121, 31, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-dot.active {
+            background: var(--accent-tech);
+            transform: scale(1.3);
+        }
+
+        .nav-dot:hover {
+            background: var(--pill-yellow);
+        }
+
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: rgba(183, 121, 31, 0.6);
+            z-index: 1000;
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal:nth-child(1) { transition-delay: 0.08s; }
+        .reveal:nth-child(2) { transition-delay: 0.16s; }
+        .reveal:nth-child(3) { transition-delay: 0.24s; }
+        .reveal:nth-child(4) { transition-delay: 0.32s; }
+        .reveal:nth-child(5) { transition-delay: 0.40s; }
+        .reveal:nth-child(6) { transition-delay: 0.48s; }
+
+        /* Gentle float animation */
+        @keyframes gentle-float {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-8px) rotate(3deg); }
+        }
+
+        .float-anim {
+            animation: gentle-float 3s ease-in-out infinite;
+        }
+
+        /* Bounce for main emoji */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .bounce-anim {
+            animation: bounce 2s ease infinite;
+        }
+
+        /* ===========================================
+           SPECIFIC SLIDE STYLES
+           =========================================== */
+
+        /* Title slide */
+        .title-slide .card {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title-slide .card-body {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title-slide .main-emoji {
+            font-size: clamp(5rem, 12vw, 8rem);
+            margin-bottom: var(--content-gap);
+        }
+
+        .title-slide h1 {
+            margin-bottom: var(--element-gap);
+        }
+
+        .title-slide .subtitle {
+            font-size: var(--h3-size);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Two column layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--content-gap);
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            .pills { display: none; }
+            .nav-dots { right: 10px; }
+        }
+
+        /* Responsive breakpoints */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(1rem, 3vw, 2rem);
+                --content-gap: clamp(0.75rem, 2vw, 1.5rem);
+            }
+            .card {
+                max-height: 90vh;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .keyboard-hint { display: none; }
+            .feature-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            .reveal {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* Video button */
+        .video-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(238, 90, 90, 0.4);
+            margin-left: 12px;
+        }
+
+        .video-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(238, 90, 90, 0.6);
+        }
+
+        /* Reveal button */
+        .reveal-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--pill-yellow) 0%, var(--pill-orange) 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: var(--body-size);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(244, 208, 63, 0.4);
+        }
+
+        .reveal-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(244, 208, 63, 0.6);
+        }
+
+        .reveal-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #2d3748;
+            border-radius: 12px;
+            padding: clamp(1rem, 2vw, 1.5rem);
+            font-family: 'Courier New', monospace;
+            font-size: var(--small-size);
+            color: #e2e8f0;
+            overflow-x: auto;
+            line-height: 1.8;
+        }
+
+        .code-block .keyword { color: #f0b4d4; }
+        .code-block .function { color: #a8d4c4; }
+        .code-block .comment { color: #718096; font-style: italic; }
+        .code-block .string { color: #f4c2a1; }
+
+        /* Interactive cards */
+        .interactive-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+        }
+
+        .interactive-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: var(--pill-yellow);
+        }
+
+        .interactive-card.active {
+            border-color: var(--accent-tech);
+            background: linear-gradient(135deg, rgba(244,208,63,0.1) 0%, rgba(245,176,65,0.05) 100%);
+        }
+
+        /* Light demo - 逼真灯泡效果 */
+        .light-demo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: var(--element-gap);
+            background: rgba(244, 208, 63, 0.1);
+            border-radius: 16px;
+        }
+
+        .real-bulb-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .real-bulb {
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #f5f5f5, #d0d0d0);
+            border-radius: 50%;
+            position: relative;
+            box-shadow:
+                inset -5px -5px 10px rgba(0,0,0,0.2),
+                inset 5px 5px 10px rgba(255,255,255,0.8),
+                0 0 0 3px #666;
+            transition: all 0.3s ease;
+        }
+
+        .real-bulb::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 20px;
+            background: linear-gradient(to bottom, #888, #666);
+            border-radius: 0 0 4px 4px;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .real-bulb::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 40% 40%, #fffacd, #ffeb3b, #ffd700);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            filter: blur(0px);
+            left: -25px;
+            top: 0;
+        }
+
+        .real-bulb.glow-20::after { opacity: 0.2; box-shadow: 0 0 20px rgba(255,235,59,0.3); }
+        .real-bulb.glow-40::after { opacity: 0.4; box-shadow: 0 0 30px rgba(255,235,59,0.5); }
+        .real-bulb.glow-60::after { opacity: 0.6; box-shadow: 0 0 40px rgba(255,235,59,0.7); }
+        .real-bulb.glow-80::after { opacity: 0.8; box-shadow: 0 0 50px rgba(255,235,59,0.9), 0 0 80px rgba(255,200,0,0.5); }
+        .real-bulb.glow-100::after { opacity: 1; box-shadow: 0 0 60px rgba(255,235,59,1), 0 0 100px rgba(255,200,0,0.7), 0 0 150px rgba(255,180,0,0.4); }
+
+        .real-bulb.glow-40, .real-bulb.glow-60, .real-bulb.glow-80, .real-bulb.glow-100 {
+            background: radial-gradient(circle at 30% 30%, #fffef0, #fffacd);
+        }
+
+        .light-slider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brightness-display {
+            font-size: var(--h3-size);
+            font-weight: 700;
+            color: var(--accent-tech);
+        }
+
+        input[type="range"] {
+            width: 120px;
+            cursor: pointer;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Navigation dots -->
+    <nav class="nav-dots" id="navDots"></nav>
+
+    <!-- Keyboard hint -->
+    <div class="keyboard-hint">← → 方向键或空格键切换</div>
+
+    <!-- Slide 1: Title -->
+    <section class="slide title-slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="main-emoji bounce-anim reveal">💡🤖</div>
+                <h1 class="reveal">智能台灯</h1>
+                <p class="subtitle reveal">SPIKE Prime 编程课程</p>
+                <p class="reveal" style="margin-top: 0.5rem; font-size: var(--small-size); color: var(--text-muted);">打造属于你的智能家居</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 2: Course Opening -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">📚 课程开场</div>
+                <h2 class="reveal">欢迎来到智能家居世界！</h2>
+                <div class="feature-grid reveal" style="margin-top: 1rem;">
+                    <div class="feature-card">
+                        <span class="emoji">🎾</span>
+                        <h4>回顾上节课</h4>
+                        <p>杯子盖球</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="emoji">💡</span>
+                        <h4>今天我们要</h4>
+                        <p>创造智能照明助手</p>
+                    </div>
+                </div>
+                <p class="reveal" style="margin-top: 1rem; text-align: center; color: var(--accent-tech); font-weight: 600;">准备好点亮智慧生活了吗？</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: Question Introduction -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">🤔 思考问题</div>
+                <h2 class="reveal">你用过智能台灯吗？</h2>
+                <div class="riddle-box reveal">
+                    <p style="font-size: var(--body-size); font-style: normal;">智能台灯和普通台灯有什么不同？你能想到哪些智能功能？</p>
+                </div>
+                <div id="smartReveal" style="display: none;">
+                    <div class="feature-grid reveal" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="feature-card" style="padding: 0.75rem;">
+                            <span class="emoji" style="font-size: 1.8rem;">🌅</span>
+                            <h4 style="font-size: 0.9rem;">自动调光</h4>
+                            <p style="font-size: 0.75rem;">根据环境光线<br>自动调节亮度</p>
+                        </div>
+                        <div class="feature-card" style="padding: 0.75rem;">
+                            <span class="emoji" style="font-size: 1.8rem;">👤</span>
+                            <h4 style="font-size: 0.9rem;">人体感应</h4>
+                            <p style="font-size: 0.75rem;">靠近自动开灯<br>离开自动关灯</p>
+                        </div>
+                        <div class="feature-card" style="padding: 0.75rem;">
+                            <span class="emoji" style="font-size: 1.8rem;">⏰</span>
+                            <h4 style="font-size: 0.9rem;">定时开关</h4>
+                            <p style="font-size: 0.75rem;">设定时间自动<br>开关灯提醒</p>
+                        </div>
+                        <div class="feature-card" style="padding: 0.75rem;">
+                            <span class="emoji" style="font-size: 1.8rem;">📱</span>
+                            <h4 style="font-size: 0.9rem;">手机控制</h4>
+                            <p style="font-size: 0.75rem;">APP远程控制<br>随时随地操作</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal" style="text-align: center; margin-top: auto;">
+                    <button class="reveal-btn" id="smartBtn" onclick="showSmartAnswer()">🔍 揭晓答案</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: What is Smart Lamp -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">💡 智能台灯</div>
+                <h2 class="reveal">什么是智能台灯？</h2>
+                <p class="reveal" style="margin-bottom: 1rem;">智能台灯是一种能够<strong style="color: var(--accent-tech);">自动感知环境、调节亮度、保护视力</strong>的智能家居设备。</p>
+                <div class="feature-grid reveal">
+                    <div class="feature-card">
+                        <span class="emoji">👁️</span>
+                        <h4>护眼模式</h4>
+                        <p>减少蓝光伤害<br>保护视力健康</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="emoji">🌓</span>
+                        <h4>亮度调节</h4>
+                        <p>根据环境光线<br>自动调节亮度</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="emoji">🔌</span>
+                        <h4>节能环保</h4>
+                        <p>LED光源<br>低能耗长寿命</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="emoji">🎨</span>
+                        <h4>色温调节</h4>
+                        <p>冷暖光切换<br>适应不同场景</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: Smart Features -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">✨ 智能功能</div>
+                <h2 class="reveal">智能台灯的黑科技</h2>
+                <div class="two-column">
+                    <div class="reveal">
+                        <div class="riddle-box">
+                            <p style="font-size: var(--body-size); font-style: normal;">智能台灯通过传感器感知周围环境，自动调节亮度和色温，为你创造最舒适的照明环境！</p>
+                        </div>
+                        <ul class="bullet-list" style="margin-top: 1rem;">
+                            <li>光线传感器检测环境亮度</li>
+                            <li>距离传感器感知人体靠近</li>
+                            <li>自动开关灯，省心省力</li>
+                        </ul>
+                    </div>
+                    <div class="reveal" style="text-align: center; min-width: 0;">
+                        <div style="background: rgba(244,208,63,0.1); border-radius: 16px; padding: 1rem; overflow: hidden;">
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">👆 移动滑块调节灯泡亮度</p>
+                            <div class="light-demo" style="margin-bottom: 0.5rem;">
+                                <div class="real-bulb-container">
+                                    <div class="real-bulb glow-50" id="realBulb"></div>
+                                </div>
+                                <div class="light-slider" style="gap: 5px;">
+                                    <span style="font-size: 1.2rem;">🔅</span>
+                                    <input type="range" min="0" max="100" value="50" id="lightSlider" oninput="updateRealBulb(this.value)" style="width: 100px;">
+                                    <span style="font-size: 1.2rem;">☀️</span>
+                                    <span class="brightness-display" id="brightnessDisplay" style="font-size: 0.9rem;">50%</span>
+                                </div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.6); border-radius: 8px; padding: 6px 10px; display: inline-block; max-width: 100%;">
+                                <span id="lightStatus" style="font-weight: 600; color: var(--accent-tech); font-size: 0.85rem;">💡 亮度适中</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 6: Mechanical Structure -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">🔧 机械结构</div>
+                <h2 class="reveal">智能台灯的组成<a href="https://go.plvideo.cn/front/video/preview?vid=vdbdb4e16f0fdf01a2701e4ca3f608c2_v" target="_blank" class="video-btn" title="观看作品演示视频">▶</a></h2>
+                <p class="reveal" style="font-size: var(--small-size); color: var(--text-muted); margin-bottom: 0.5rem;">📺 作品演示视频</p>
+                <div class="two-column" style="align-items: center;">
+                    <div class="reveal">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <div class="feature-card" style="padding: 0.75rem;">
+                                <span class="emoji" style="font-size: 1.8rem;">🔘</span>
+                                <h4 style="font-size: 0.9rem;">按压传感器</h4>
+                                <p style="font-size: 0.75rem;">一键开关灯</p>
+                            </div>
+                            <div class="feature-card" style="padding: 0.75rem;">
+                                <span class="emoji" style="font-size: 1.8rem;">🔗</span>
+                                <h4 style="font-size: 0.9rem;">连杆结构</h4>
+                                <p style="font-size: 0.75rem;">灯臂伸缩</p>
+                            </div>
+                            <div class="feature-card" style="padding: 0.75rem;">
+                                <span class="emoji" style="font-size: 1.8rem;">💡</span>
+                                <h4 style="font-size: 0.9rem;">LED灯组</h4>
+                                <p style="font-size: 0.75rem;">发光光源</p>
+                            </div>
+                            <div class="feature-card" style="padding: 0.75rem;">
+                                <span class="emoji" style="font-size: 1.8rem;">🧠</span>
+                                <h4 style="font-size: 0.9rem;">SPIKE集线器</h4>
+                                <p style="font-size: 0.75rem;">智能控制</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reveal" style="text-align: center;">
+                        <div style="background: linear-gradient(135deg, rgba(244,208,63,0.2) 0%, rgba(245,176,65,0.2) 100%); border-radius: 16px; padding: 1.5rem;">
+                            <img src="https://s41.ax1x.com/2026/04/10/pedLX7R.png" alt="智能台灯搭建成品" style="max-width: 100%; max-height: 200px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 0.5rem;">
+                            <p style="font-weight: 600; color: var(--accent-tech);">智能台灯搭建成品</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 7: Building Steps -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">🏗️ 建构环节</div>
+                <h2 class="reveal">搭建我们的智能台灯</h2>
+                <div class="two-column">
+                    <div class="reveal">
+                        <ol class="numbered-list">
+                            <li><strong>底座</strong> — 搭建稳固的底座支架，安装集线器</li>
+                            <li><strong>连杆结构</strong> — 搭建伸缩灯臂的连杆传动机构</li>
+                            <li><strong>灯头</strong> — 搭建LED灯组件，连接电机</li>
+                            <li><strong>按压传感器</strong> — 安装到灯座便于操作的位置</li>
+                            <li><strong>接线</strong> — 电机接A口，传感器接F口，灯接B口</li>
+                        </ol>
+                        <div style="margin-top: 1rem; background: linear-gradient(135deg, rgba(244,208,63,0.15) 0%, rgba(245,176,65,0.1) 100%); border-radius: 12px; padding: 1rem; text-align: center;">
+                            <p style="font-weight: 600; color: var(--accent-tech);">💡 小贴士：连杆结构要确保顺滑伸缩！</p>
+                        </div>
+                    </div>
+                    <div class="reveal" style="text-align: center;">
+                        <div style="background: linear-gradient(135deg, rgba(244,208,63,0.2) 0%, rgba(245,176,65,0.2) 100%); border-radius: 16px; padding: 1rem;">
+                            <img src="https://s41.ax1x.com/2026/04/10/pedLX7R.png" alt="搭建我们的智能台灯" style="max-width: 100%; max-height: 320px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 8: Programming Logic -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">💻 编程思维</div>
+                <h2 class="reveal">程序逻辑</h2>
+                <div class="two-column" style="align-items: flex-start;">
+                    <div class="reveal">
+                        <h3 style="margin-bottom: var(--element-gap); font-size: 1rem;">核心功能：</h3>
+                        <ul class="bullet-list" style="gap: 0.4rem;">
+                            <li style="font-size: 0.85rem;"><strong>🔘 按压开关灯</strong> — 轻按开灯，再按关灯</li>
+                            <li style="font-size: 0.85rem;"><strong>→ 延伸灯臂</strong> — 右方向键控制连杆伸出</li>
+                            <li style="font-size: 0.85rem;"><strong>← 收回灯臂</strong> — 左方向键控制连杆缩回</li>
+                            <li style="font-size: 0.85rem;"><strong>💡 LED亮度</strong> — 可设置不同亮度等级</li>
+                        </ul>
+                        <div style="margin-top: 0.75rem; background: #f8f9fa; border-radius: 12px; padding: 1rem; text-align: center; border: 2px dashed var(--pill-yellow);">
+                            <p style="font-weight: 600; color: var(--accent-tech); margin-bottom: 0.5rem; font-size: 0.9rem;">🧠 编程思维导图</p>
+                            <img src="https://s41.ax1x.com/2026/04/09/pedP6u6.png" alt="智能台灯编程思维导图" style="max-width: 100%; max-height: 220px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <div class="code-block" style="font-size: 0.72rem; padding: 0.75rem;">
+<span class="comment"># 智能台灯控制程序</span>
+<span class="keyword">当启动时</span>
+  <span class="comment"># 灯臂控制（方向键）</span>
+  <span class="keyword">重复</span> (无限)
+    <span class="keyword">如果</span> 按下 → 键
+      电机A <span class="function">正转</span> (延伸灯臂)
+    <span class="keyword">否则如果</span> 按下 ← 键
+      电机A <span class="function">反转</span> (收回灯臂)
+    <span class="keyword">否则</span>
+      电机A <span class="function">停止</span>
+    <span class="keyword">结束</span>
+  <span class="keyword">循环结束</span>
+<span class="keyword">结束</span>
+
+<span class="comment"># 按压开关灯</span>
+<span class="keyword">当</span> 按压传感器 <span class="keyword">被按下</span>
+  <span class="keyword">如果</span> 灯状态 == 关闭
+    LED <span class="function">开启</span> (亮度80%)
+    灯状态 = 开启
+  <span class="keyword">否则</span>
+    LED <span class="function">关闭</span>
+    灯状态 = 关闭
+  <span class="keyword">结束</span>
+<span class="keyword">结束</span>
+                        </div>
+                        <div style="margin-top: 0.75rem; text-align: center;" id="codeRefSection">
+                            <button class="reveal-btn" id="codeRefBtn" onclick="showCodeRef()" style="padding: 8px 16px; font-size: 0.8rem;">📋 查看编程参考</button>
+                            <div id="codeRefImage" style="display: none; margin-top: 0.5rem;">
+                                <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem; border: 2px dashed var(--pill-yellow);">
+                                    <p style="font-weight: 600; color: var(--accent-tech); margin-bottom: 0.5rem; font-size: 0.9rem;">📋 智能台灯完整编程参考</p>
+                                    <img src="https://s41.ax1x.com/2026/04/10/pedLLnJ.png" alt="智能台灯编程参考" style="max-width: 100%; max-height: 260px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 9: Sensor Application -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">🔘 按压传感器</div>
+                <h2 class="reveal">传感器的应用</h2>
+                <div class="two-column">
+                    <div class="reveal">
+                        <div style="background: linear-gradient(135deg, rgba(244,208,63,0.2) 0%, rgba(245,176,65,0.1) 100%); border-radius: 16px; padding: 1.5rem;">
+                            <h3 style="color: var(--accent-tech); margin-bottom: 1rem;">🔍 传感器功能</h3>
+                            <ul class="bullet-list">
+                                <li>检测按压操作（按下/松开）</li>
+                                <li>轻按一次触发开灯</li>
+                                <li>再按一次触发关灯</li>
+                                <li>实现一键启停控制</li>
+                            </ul>
+                        </div>
+                        <p style="margin-top: 1rem; font-size: var(--small-size); color: var(--text-muted);">
+                            🎯 按压传感器就像是台灯的"开关按钮"，轻触即可控制！
+                        </p>
+                    </div>
+                    <div class="reveal">
+                        <div class="code-block" style="font-size: 0.75rem; padding: 0.75rem;">
+<span class="comment"># 按压开关逻辑</span>
+灯状态 = <span class="string">"关闭"</span>
+
+<span class="keyword">当</span> 按压传感器 <span class="keyword">被按下</span>
+  <span class="keyword">如果</span> 灯状态 == <span class="string">"关闭"</span>
+    LED灯 <span class="function">开启</span> (亮度: 80%)
+    灯状态 = <span class="string">"开启"</span>
+    <span class="function">打印</span> <span class="string">"灯亮了！"</span>
+  <span class="keyword">否则</span>
+    LED灯 <span class="function">关闭</span>
+    灯状态 = <span class="string">"关闭"</span>
+    <span class="function">打印</span> <span class="string">"灯灭了！"</span>
+  <span class="keyword">结束</span>
+  <span class="function">等待</span> 0.5秒 <span class="comment"># 防止重复触发</span>
+<span class="keyword">结束</span>
+                        </div>
+                        <div style="margin-top: 1rem; text-align: center;">
+                            <div style="display: flex; gap: 1rem; justify-content: center; align-items: center;">
+                                <img src="https://s41.ax1x.com/2026/04/10/pewPwJH.png" alt="传感器图1" style="max-height: 100px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <img src="https://s41.ax1x.com/2026/04/10/pewPVs0.png" alt="传感器图2" style="max-height: 100px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 10: Extension Activity -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">🎮 拓展活动</div>
+                <h2 class="reveal">创意挑战</h2>
+                <div class="riddle-box reveal">
+                    <p style="font-size: var(--body-size); font-style: normal;">继续搭建智能家居场景：添加更多智能设备！</p>
+                </div>
+                <div class="feature-grid reveal">
+                    <div class="feature-card">
+                        <span class="emoji">🏠</span>
+                        <h4>场景搭建</h4>
+                        <p>搭建房间环境<br>设置书桌和床</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="emoji">🎨</span>
+                        <h4>创意设计</h4>
+                        <p>设计独特造型<br>个性化你的台灯</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="emoji">🏆</span>
+                        <h4>功能升级</h4>
+                        <p>添加更多功能<br>如定时、调色</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 11: Reflection -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">💭 反思提问</div>
+                <h2 class="reveal">今天学到了什么？</h2>
+                <div class="two-column" style="align-items: center;">
+                    <div class="reveal">
+                        <ul class="bullet-list">
+                            <li>今天搭建的主题是什么？</li>
+                            <li>按压传感器有什么作用？</li>
+                            <li>如何控制灯臂的伸缩？</li>
+                            <li>你的台灯有哪些智能功能？</li>
+                            <li>如果让你改进，你会添加什么功能？</li>
+                        </ul>
+                        <p class="reveal" style="margin-top: 1.5rem; text-align: center; color: var(--pill-orange); font-weight: 700; font-size: var(--h3-size);">🌟 点亮智慧，照亮未来！</p>
+                    </div>
+                    <div class="reveal" style="text-align: center;">
+                        <div style="background: linear-gradient(135deg, rgba(244,208,63,0.2) 0%, rgba(245,176,65,0.2) 100%); border-radius: 16px; padding: 1.5rem;">
+                            <img src="https://s41.ax1x.com/2026/04/10/pedLX7R.png" alt="智能台灯搭建成品" style="max-width: 100%; max-height: 280px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                            <p style="font-weight: 600; color: var(--accent-tech); margin-top: 0.5rem;">我们的智能台灯</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 12: Course Goals -->
+    <section class="slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="info-tag reveal">🎯 课程目标</div>
+                <h2 class="reveal">今天我们达成了</h2>
+                <div class="feature-grid reveal">
+                    <div class="feature-card">
+                        <span class="emoji">💡</span>
+                        <h4>知识目标</h4>
+                        <p>了解智能台灯的工作原理<br>认识光线传感器的应用</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="emoji">🛠️</span>
+                        <h4>技能目标</h4>
+                        <p>搭建智能台灯模型<br>掌握条件判断编程</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="emoji">💪</span>
+                        <h4>能力目标</h4>
+                        <p>培养创新思维<br>提高问题解决能力</p>
+                    </div>
+                </div>
+                <div class="reveal" style="margin-top: 1.5rem; text-align: center; background: linear-gradient(135deg, rgba(244,208,63,0.2) 0%, rgba(245,176,65,0.2) 100%); border-radius: 16px; padding: 1.5rem;">
+                    <span style="font-size: clamp(3rem, 6vw, 4rem); display: block; margin-bottom: 0.5rem;">🚗💨</span>
+                    <h3 style="color: var(--accent-tech); margin-bottom: 0.5rem;">下节课预告</h3>
+                    <p style="font-weight: 600;">《惯性小车》</p>
+                    <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.5rem;">下次见！继续探索智能机械的奥秘 🎉</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 13: Ending -->
+    <section class="slide title-slide">
+        <div class="card">
+            <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+                <div class="pill"></div>
+            </div>
+            <div class="card-body">
+                <div class="main-emoji bounce-anim reveal">🎉💡</div>
+                <h1 class="reveal">太棒了！</h1>
+                <p class="subtitle reveal">你成功完成了智能台灯的搭建和编程</p>
+                <p class="reveal" style="margin-top: 2rem; font-size: var(--body-size);">
+                    继续保持创造力，点亮更多智慧生活！✨
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.totalSlides = this.slides.length;
+
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupProgressBar();
+                this.setupNavDots();
+                this.setupScrollHandler();
+            }
+
+            setupIntersectionObserver() {
+                const observerOptions = {
+                    root: null,
+                    rootMargin: '0px',
+                    threshold: 0.5
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            this.currentSlide = Array.from(this.slides).indexOf(entry.target);
+                            this.updateNavDots();
+                            this.updateProgressBar();
+                        }
+                    });
+                }, observerOptions);
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+                        e.preventDefault();
+                        this.nextSlide();
+                    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.prevSlide();
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.goToSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.goToSlide(this.totalSlides - 1);
+                    }
+                });
+            }
+
+            setupTouchNav() {
+                let touchStartY = 0;
+                let touchEndY = 0;
+
+                document.addEventListener('touchstart', (e) => {
+                    touchStartY = e.changedTouches[0].screenY;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    touchEndY = e.changedTouches[0].screenY;
+                    this.handleSwipe(touchStartY, touchEndY);
+                }, { passive: true });
+            }
+
+            handleSwipe(startY, endY) {
+                const threshold = 50;
+                const diff = startY - endY;
+
+                if (Math.abs(diff) > threshold) {
+                    if (diff > 0) {
+                        this.nextSlide();
+                    } else {
+                        this.prevSlide();
+                    }
+                }
+            }
+
+            setupScrollHandler() {
+                let lastScrollTime = 0;
+                const scrollCooldown = 800;
+
+                document.addEventListener('wheel', (e) => {
+                    const now = Date.now();
+                    if (now - lastScrollTime < scrollCooldown) return;
+
+                    if (e.deltaY > 30) {
+                        lastScrollTime = now;
+                        this.nextSlide();
+                    } else if (e.deltaY < -30) {
+                        lastScrollTime = now;
+                        this.prevSlide();
+                    }
+                }, { passive: true });
+            }
+
+            setupProgressBar() {
+                this.progressBar = document.getElementById('progressBar');
+                this.updateProgressBar();
+            }
+
+            updateProgressBar() {
+                if (this.progressBar) {
+                    const progress = ((this.currentSlide + 1) / this.totalSlides) * 100;
+                    this.progressBar.style.width = `${progress}%`;
+                }
+            }
+
+            setupNavDots() {
+                const navDotsContainer = document.getElementById('navDots');
+                if (!navDotsContainer) return;
+
+                this.slides.forEach((_, index) => {
+                    const dot = document.createElement('div');
+                    dot.className = 'nav-dot';
+                    dot.addEventListener('click', () => this.goToSlide(index));
+                    navDotsContainer.appendChild(dot);
+                });
+
+                this.navDots = document.querySelectorAll('.nav-dot');
+                this.updateNavDots();
+            }
+
+            updateNavDots() {
+                if (!this.navDots) return;
+                this.navDots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === this.currentSlide);
+                });
+            }
+
+            nextSlide() {
+                if (this.currentSlide < this.totalSlides - 1) {
+                    this.goToSlide(this.currentSlide + 1);
+                }
+            }
+
+            prevSlide() {
+                if (this.currentSlide > 0) {
+                    this.goToSlide(this.currentSlide - 1);
+                }
+            }
+
+            goToSlide(index) {
+                if (index >= 0 && index < this.totalSlides) {
+                    this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
+        // Initialize presentation when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+        });
+
+        // Interactive functions
+        function showSmartAnswer() {
+            const btn = document.getElementById('smartBtn');
+            const revealContainer = document.getElementById('smartReveal');
+
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.textContent = '✅ 已揭晓';
+
+            revealContainer.style.display = 'block';
+            revealContainer.style.animation = 'fadeInUp 0.5s ease';
+        }
+
+        function showCodeRef() {
+            const btn = document.getElementById('codeRefBtn');
+            const imageDiv = document.getElementById('codeRefImage');
+
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.textContent = '✅ 已显示';
+
+            imageDiv.style.display = 'block';
+            imageDiv.style.animation = 'fadeInUp 0.5s ease';
+        }
+
+        // 智能功能页逼真灯泡控制
+        function updateRealBulb(value) {
+            const bulb = document.getElementById('realBulb');
+            const display = document.getElementById('brightnessDisplay');
+            const status = document.getElementById('lightStatus');
+
+            display.textContent = value + '%';
+
+            // 移除所有发光类
+            bulb.classList.remove('glow-20', 'glow-40', 'glow-60', 'glow-80', 'glow-100');
+
+            // 根据亮度值添加对应的发光类
+            if (value < 20) {
+                bulb.classList.add('glow-20');
+                status.textContent = '🔅 微亮';
+                status.style.color = '#999';
+            } else if (value < 40) {
+                bulb.classList.add('glow-40');
+                status.textContent = '💡 亮度适中';
+                status.style.color = '#b7791f';
+            } else if (value < 60) {
+                bulb.classList.add('glow-60');
+                status.textContent = '☀️ 很亮';
+                status.style.color = '#f5b041';
+            } else if (value < 80) {
+                bulb.classList.add('glow-80');
+                status.textContent = '✨ 非常亮';
+                status.style.color = '#e67e22';
+            } else {
+                bulb.classList.add('glow-100');
+                status.textContent = '🌟 最亮模式';
+                status.style.color = '#d35400';
+            }
+        }
+
+        // Initialize bulb on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRealBulb(50);
+        });
+
+        // 智能功能页灯泡亮度控制
+        function updateBulb(value) {
+            const bulbContainer = document.getElementById('bulbContainer');
+            const bulb = document.getElementById('bulb');
+            const display = document.getElementById('brightnessValue');
+            const status = document.getElementById('bulbStatus');
+
+            // 更新CSS变量控制亮度
+            bulbContainer.style.setProperty('--brightness', value);
+            display.textContent = value + '%';
+
+            // 根据亮度更新状态和样式
+            if (value < 20) {
+                bulb.classList.remove('on');
+                status.textContent = '🔅 灯泡微亮';
+                status.style.color = '#b7791f';
+            } else if (value < 50) {
+                bulb.classList.add('on');
+                status.textContent = '💡 亮度适中';
+                status.style.color = '#b7791f';
+            } else if (value < 80) {
+                bulb.classList.add('on');
+                status.textContent = '☀️ 亮度很亮';
+                status.style.color = '#f5b041';
+            } else {
+                bulb.classList.add('on');
+                status.textContent = '✨ 最亮模式';
+                status.style.color = '#e67e22';
+            }
+        }
+    </script>
+</body>
+</html>
